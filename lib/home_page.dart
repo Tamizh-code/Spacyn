@@ -1,5 +1,18 @@
 import 'package:flutter/material.dart';
 
+// yeh imports aapke pages ke liye hain
+import 'pages/stud_media_page.dart';
+import 'pages/posts_page.dart';
+import 'pages/other_functions_page.dart';
+import 'pages/updates_page.dart';
+import 'pages/day_updates_page.dart';
+import 'pages/more_page.dart';
+import 'pages/post_page.dart';
+import 'pages/group_page.dart';
+import 'pages/alerts_page.dart';
+import 'pages/events_page.dart';
+
+
 class HomePage extends StatelessWidget {
   final String userEmail;
 
@@ -62,10 +75,10 @@ class HomePage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                buildCircleButton(Icons.add_comment, "Post"),
-                buildCircleButton(Icons.people, "Group"),
-                buildCircleButton(Icons.notifications, "Alerts"),
-                buildCircleButton(Icons.event, "Events"),
+                buildCircleButton(context, Icons.add_comment, "Post", PostPage()),
+                buildCircleButton(context, Icons.people, "Group", GroupPage()),
+                buildCircleButton(context, Icons.notifications, "Alerts", AlertsPage()),
+                buildCircleButton(context, Icons.event, "Events", EventsPage()),
               ],
             ),
             const SizedBox(height: 20),
@@ -78,12 +91,12 @@ class HomePage extends StatelessWidget {
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
               children: [
-                buildFeatureCard("Stud Media", Icons.school, Colors.purple),
-                buildFeatureCard("Posts", Icons.post_add, Colors.blue),
-                buildFeatureCard("Other Functions", Icons.extension, Colors.orange),
-                buildFeatureCard("Updates on Dept", Icons.update, Colors.green),
-                buildFeatureCard("Day to Day Updates", Icons.today, Colors.red),
-                buildFeatureCard("More", Icons.more_horiz, Colors.grey),
+                buildFeatureCard(context, "Stud Media", Icons.school, Colors.purple, StudMediaPage()),
+                buildFeatureCard(context, "Posts", Icons.post_add, Colors.blue, PostsPage()),
+                buildFeatureCard(context, "Other Functions", Icons.extension, Colors.orange, OtherFunctionsPage()),
+                buildFeatureCard(context, "Updates on Dept", Icons.update, Colors.green, UpdatesPage()),
+                buildFeatureCard(context, "Day to Day Updates", Icons.today, Colors.red, DayUpdatesPage()),
+                buildFeatureCard(context, "More", Icons.more_horiz, Colors.grey, MorePage()),
               ],
             ),
           ],
@@ -122,13 +135,18 @@ class HomePage extends StatelessWidget {
   }
 
   // Helper: Circle Button
-  Widget buildCircleButton(IconData icon, String label) {
+  Widget buildCircleButton(BuildContext context, IconData icon, String label, Widget page) {
     return Column(
       children: [
-        CircleAvatar(
-          radius: 28,
-          backgroundColor: Colors.deepPurple.shade100,
-          child: Icon(icon, size: 30, color: Colors.deepPurple),
+        InkWell(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+          },
+          child: CircleAvatar(
+            radius: 28,
+            backgroundColor: Colors.deepPurple.shade100,
+            child: Icon(icon, size: 30, color: Colors.deepPurple),
+          ),
         ),
         const SizedBox(height: 6),
         Text(label, style: const TextStyle(fontSize: 12)),
@@ -137,12 +155,14 @@ class HomePage extends StatelessWidget {
   }
 
   // Helper: Feature Card
-  Widget buildFeatureCard(String title, IconData icon, Color color) {
+  Widget buildFeatureCard(BuildContext context, String title, IconData icon, Color color, Widget page) {
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+        },
         borderRadius: BorderRadius.circular(15),
         child: Center(
           child: Column(
