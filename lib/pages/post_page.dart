@@ -74,9 +74,14 @@ class _PostPageState extends State<PostPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.network(post.imageUrl, fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      Container(height: 200, color: Colors.grey[300], child: Center(child: Text("Invalid Image URL"))),
+                Image.network(
+                  post.imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 200,
+                    color: Colors.grey[300],
+                    child: Center(child: Text("Invalid Image URL")),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -93,4 +98,4 @@ class _PostPageState extends State<PostPage> {
       ),
     );
   }
-
+} // <-- This closing brace was missing

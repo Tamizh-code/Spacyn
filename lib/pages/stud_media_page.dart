@@ -11,7 +11,6 @@ class StudMediaHomePage extends StatefulWidget {
 }
 
 class _StudMediaHomePageState extends State<StudMediaHomePage> {
-  // List of all profiles
   List<StudentProfile> profiles = [
     StudentProfile(
       email: "alice@example.com",
@@ -27,7 +26,6 @@ class _StudMediaHomePageState extends State<StudMediaHomePage> {
     ),
   ];
 
-  // Helper: Check if current user already has a profile
   StudentProfile? getCurrentUserProfile() {
     try {
       return profiles.firstWhere((p) => p.email == widget.userEmail);
@@ -41,15 +39,19 @@ class _StudMediaHomePageState extends State<StudMediaHomePage> {
     final currentUserProfile = getCurrentUserProfile();
 
     return Scaffold(
+      backgroundColor: Colors.deepPurple.shade100,
       appBar: AppBar(
         title: const Text("Stud Media"),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.deepPurple,
+        elevation: 4,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            // 🔹 If user has no profile, show "Create Profile" button
             if (currentUserProfile == null)
               ElevatedButton.icon(
                 onPressed: () {
@@ -75,13 +77,15 @@ class _StudMediaHomePageState extends State<StudMediaHomePage> {
                 icon: const Icon(Icons.add),
                 label: const Text("Create Your Profile"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  elevation: 4,
                 ),
               ),
             const SizedBox(height: 12),
-
-            // 🔹 Display all profiles
             Expanded(
               child: ListView.builder(
                 itemCount: profiles.length,
@@ -96,23 +100,26 @@ class _StudMediaHomePageState extends State<StudMediaHomePage> {
                         Positioned(
                           top: 8,
                           right: 8,
-                          child: IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.teal),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EditProfilePage(
-                                    profile: profile,
-                                    onSave: (updatedProfile) {
-                                      setState(() {
-                                        profiles[index] = updatedProfile;
-                                      });
-                                    },
+                          child: CircleAvatar(
+                            backgroundColor: Colors.deepPurple,
+                            child: IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.white),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EditProfilePage(
+                                      profile: profile,
+                                      onSave: (updatedProfile) {
+                                        setState(() {
+                                          profiles[index] = updatedProfile;
+                                        });
+                                      },
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
                     ],
@@ -129,7 +136,7 @@ class _StudMediaHomePageState extends State<StudMediaHomePage> {
 
 // -------------------- Student Profile Model --------------------
 class StudentProfile {
-  String email; // unique for each user
+  String email;
   String name;
   List<String> skills;
   String excellence;
@@ -150,9 +157,11 @@ class StudentProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 6,
+      shadowColor: Colors.deepPurple.shade200,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       margin: const EdgeInsets.symmetric(vertical: 8),
+      color: Colors.deepPurple.shade50,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -160,13 +169,18 @@ class StudentProfileCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 30,
-                backgroundColor: Colors.teal.shade200,
-                child: Text(profile.name.isNotEmpty ? profile.name[0] : "?",
-                    style: const TextStyle(fontSize: 24, color: Colors.white)),
+                backgroundColor: Colors.deepPurple.shade300,
+                child: Text(
+                  profile.name.isNotEmpty ? profile.name[0] : "?",
+                  style: const TextStyle(fontSize: 24, color: Colors.white),
+                ),
               ),
               const SizedBox(width: 16),
-              Text(profile.name.isNotEmpty ? profile.name : "No Name",
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(
+                profile.name.isNotEmpty ? profile.name : "No Name",
+                style: const TextStyle(
+                    fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -174,7 +188,10 @@ class StudentProfileCard extends StatelessWidget {
             spacing: 8,
             children: profile.skills
                 .map((skill) => Chip(
-                label: Text(skill), backgroundColor: Colors.teal.shade50))
+              label: Text(skill),
+              backgroundColor: Colors.deepPurple.shade100,
+              labelStyle: const TextStyle(color: Colors.deepPurple),
+            ))
                 .toList(),
           ),
           const SizedBox(height: 12),
@@ -183,9 +200,15 @@ class StudentProfileCard extends StatelessWidget {
               const Icon(Icons.star, color: Colors.amber),
               const SizedBox(width: 6),
               Expanded(
-                child: Text(profile.excellence.isNotEmpty ? profile.excellence : "No achievements",
-                    style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                child: Text(
+                  profile.excellence.isNotEmpty
+                      ? profile.excellence
+                      : "No achievements",
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.deepPurple),
+                ),
               ),
             ],
           ),
@@ -217,7 +240,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     nameController = TextEditingController(text: widget.profile.name);
     skillsController =
         TextEditingController(text: widget.profile.skills.join(", "));
-    excellenceController = TextEditingController(text: widget.profile.excellence);
+    excellenceController =
+        TextEditingController(text: widget.profile.excellence);
   }
 
   @override
@@ -231,28 +255,66 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Profile"), backgroundColor: Colors.teal),
+      backgroundColor: Colors.deepPurple.shade100,
+      appBar: AppBar(
+          title: const Text("Edit Profile"),
+          backgroundColor: Colors.deepPurple,
+          elevation: 4),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: "Name")),
-            TextField(controller: skillsController, decoration: const InputDecoration(labelText: "Skills (comma separated)")),
-            TextField(controller: excellenceController, decoration: const InputDecoration(labelText: "Excellence / Achievements")),
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(
+                  labelText: "Name",
+                  filled: true,
+                  fillColor: Colors.deepPurple.shade50,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12))),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: skillsController,
+              decoration: InputDecoration(
+                  labelText: "Skills (comma separated)",
+                  filled: true,
+                  fillColor: Colors.deepPurple.shade50,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12))),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: excellenceController,
+              decoration: InputDecoration(
+                  labelText: "Excellence / Achievements",
+                  filled: true,
+                  fillColor: Colors.deepPurple.shade50,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12))),
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 final updatedProfile = StudentProfile(
                   email: widget.profile.email,
                   name: nameController.text,
-                  skills: skillsController.text.split(",").map((s) => s.trim()).toList(),
+                  skills: skillsController.text
+                      .split(",")
+                      .map((s) => s.trim())
+                      .toList(),
                   excellence: excellenceController.text,
                 );
                 widget.onSave(updatedProfile);
                 Navigator.pop(context);
               },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12))),
               child: const Text("Save"),
-            )
+            ),
           ],
         ),
       ),
