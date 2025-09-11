@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// yeh imports aapke pages ke liye hain
+// Import all pages
 import 'pages/stud_media_page.dart';
 import 'pages/posts_page.dart';
 import 'pages/other_functions_page.dart';
@@ -12,7 +12,6 @@ import 'pages/group_page.dart';
 import 'pages/alerts_page.dart';
 import 'pages/events_page.dart';
 
-
 class HomePage extends StatelessWidget {
   final String userEmail;
 
@@ -22,7 +21,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("🆂🅿🅰🅲🆈🅽"),
+        title: const Text("Sραcуи"),
         backgroundColor: Colors.deepPurple,
         actions: [
           TextButton(
@@ -91,7 +90,7 @@ class HomePage extends StatelessWidget {
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
               children: [
-                buildFeatureCard(context, "Stud Media", Icons.school, Colors.purple, StudMediaPage()),
+                buildFeatureCard(context, "Stud Media", Icons.school, Colors.teal, StudMediaHomePage(userEmail: userEmail)),
                 buildFeatureCard(context, "Posts", Icons.post_add, Colors.blue, PostsPage()),
                 buildFeatureCard(context, "Other Functions", Icons.extension, Colors.orange, OtherFunctionsPage()),
                 buildFeatureCard(context, "Updates on Dept", Icons.update, Colors.green, UpdatesPage()),
