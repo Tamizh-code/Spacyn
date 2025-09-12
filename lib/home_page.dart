@@ -11,6 +11,7 @@ import 'pages/post_page.dart';
 import 'pages/group_page.dart';
 import 'pages/alerts_page.dart';
 import 'pages/events_page.dart';
+import 'pages/community_page.dart'; // ✅ Community Page
 
 class HomePage extends StatelessWidget {
   final String userEmail;
@@ -90,9 +91,11 @@ class HomePage extends StatelessWidget {
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
               children: [
-                buildFeatureCard(context, "Stud Media", Icons.school, Colors.teal, StudMediaHomePage(userEmail: userEmail)),
+                buildFeatureCard(context, "Stud Media", Icons.school, Colors.teal,
+                    StudMediaHomePage(userEmail: userEmail)),
                 buildFeatureCard(context, "Posts", Icons.post_add, Colors.blue, PostsPage()),
-                buildFeatureCard(context, "Other Functions", Icons.extension, Colors.orange, OtherFunctionsPage()),
+                buildFeatureCard(context, "Other Functions", Icons.extension, Colors.orange,
+                    OtherFunctionsPage()),
                 buildFeatureCard(context, "Updates on Dept", Icons.update, Colors.green, UpdatesPage()),
                 buildFeatureCard(context, "Day to Day Updates", Icons.today, Colors.red, DayUpdatesPage()),
                 buildFeatureCard(context, "More", Icons.more_horiz, Colors.grey, MorePage()),
@@ -119,7 +122,12 @@ class HomePage extends StatelessWidget {
               onPressed: () {},
             ),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CommunityPage()),
+                );
+              },
               icon: const Icon(Icons.group),
               label: const Text("Community"),
             ),
@@ -154,7 +162,8 @@ class HomePage extends StatelessWidget {
   }
 
   // Helper: Feature Card
-  Widget buildFeatureCard(BuildContext context, String title, IconData icon, Color color, Widget page) {
+  Widget buildFeatureCard(
+      BuildContext context, String title, IconData icon, Color color, Widget page) {
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
