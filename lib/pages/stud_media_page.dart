@@ -365,6 +365,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             },
             style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12))),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'create_group_page.dart';
 import 'group_chat_page.dart';
 
 class CommunityPage extends StatefulWidget {
@@ -10,11 +9,22 @@ class CommunityPage extends StatefulWidget {
 }
 
 class _CommunityPageState extends State<CommunityPage> {
-  // Temporary group list (local)
-  List<Map<String, String>> groups = [
-    {"name": "CSE - 2nd Year", "desc": "All classmates here"},
-    {"name": "AI Club", "desc": "Discuss AI/ML topics"},
+  List<Map<String, dynamic>> groups = [
+    {
+      "name": "CSE - 2nd Year",
+      "members": ["Alice", "Bob", "Charlie"],
+    },
+    {
+      "name": "AI Club",
+      "members": ["David", "Eva"],
+    },
   ];
+
+  void createGroup(String groupName) {
+    setState(() {
+      groups.add({"name": groupName, "members": []});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,21 +33,26 @@ class _CommunityPageState extends State<CommunityPage> {
         title: const Text("Community Groups"),
         backgroundColor: Colors.deepPurple,
       ),
-      body: groups.isEmpty
-          ? const Center(child: Text("No groups yet. Create one!"))
-          : ListView.builder(
+      body: ListView.builder(
         itemCount: groups.length,
         itemBuilder: (context, index) {
           return ListTile(
             leading: const CircleAvatar(child: Icon(Icons.group)),
-            title: Text(groups[index]["name"]!),
-            subtitle: Text(groups[index]["desc"] ?? ""),
+            title: Text(groups[index]["name"]),
+            subtitle: Text("${groups[index]["members"].length} members"),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      GroupChatPage(groupName: groups[index]["name"]!),
+                  builder: (context) => GroupChatPage(
+                    groupName: groups[index]["name"],
+                    members: List<String>.from(groups[index]["members"]),
+                    onAddMember: (newMember) {
+                      setState(() {
+                        groups[index]["members"].add(newMember);
+                      });
+                    },
+                  ),
                 ),
               );
             },
@@ -45,20 +60,42 @@ class _CommunityPageState extends State<CommunityPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.deepPurple,
-        onPressed: () async {
-          final newGroup = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const CreateGroupPage()),
-          );
-          if (newGroup != null) {
-            setState(() {
-              groups.add(newGroup);
-            });
-          }
+        onPressed: () {
+          _showCreateGroupDialog(context);
         },
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  void _showCreateGroupDialog(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Create Group"),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(hintText: "Enter group name"),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.isNotEmpty) {
+                  createGroup(controller.text);
+                }
+                Navigator.pop(context);
+              },
+              child: const Text("Create"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

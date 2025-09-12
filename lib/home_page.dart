@@ -12,8 +12,8 @@ import 'pages/group_page.dart';
 import 'pages/alerts_page.dart';
 import 'pages/events_page.dart';
 import 'login_page.dart';
-import 'pages/community_page.dart'; // ✅ Community Page
-
+import 'pages/community_page.dart';
+import 'pages/properties_page.dart';
 
 class HomePage extends StatelessWidget {
   final String userEmail;
@@ -23,7 +23,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       appBar: AppBar(
         title: const Text("Sραcуи"),
         backgroundColor: Colors.deepPurple,
@@ -116,7 +115,14 @@ class HomePage extends StatelessWidget {
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
                 children: [
-                  buildFeatureCard(context, "Stud Media", Icons.school, Colors.purple, StudMediaPage()),
+                  // ✅ Fixed: pass userEmail to StudMediaHomePage
+                  buildFeatureCard(
+                    context,
+                    "Stud Media",
+                    Icons.school,
+                    Colors.purple,
+                    StudMediaHomePage(userEmail: userEmail),
+                  ),
                   buildFeatureCard(context, "Posts", Icons.post_add, Colors.blue, PostsPage()),
                   buildFeatureCard(context, "Other Functions", Icons.extension, Colors.orange, OtherFunctionsPage()),
                   buildFeatureCard(context, "Updates on Dept", Icons.update, Colors.green, UpdatesPage()),
@@ -126,7 +132,6 @@ class HomePage extends StatelessWidget {
               ),
             ],
           ),
-
         ),
       ),
 
@@ -140,7 +145,12 @@ class HomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               TextButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PropertiesPage()),
+                  );
+                },
                 icon: const Icon(Icons.folder, color: Colors.grey),
                 label: const Text("Properties", style: TextStyle(color: Colors.grey)),
               ),
@@ -156,13 +166,17 @@ class HomePage extends StatelessWidget {
                 child: const Icon(Icons.add, color: Colors.white),
               ),
               TextButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CommunityPage()),
+                  );
+                },
                 icon: const Icon(Icons.group, color: Colors.grey),
                 label: const Text("Community", style: TextStyle(color: Colors.grey)),
               ),
             ],
           ),
-
         ),
       ),
     );
