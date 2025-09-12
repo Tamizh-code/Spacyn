@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// yeh imports aapke pages ke liye hain
+// Import all pages
 import 'pages/stud_media_page.dart';
 import 'pages/posts_page.dart';
 import 'pages/other_functions_page.dart';
@@ -12,6 +12,8 @@ import 'pages/group_page.dart';
 import 'pages/alerts_page.dart';
 import 'pages/events_page.dart';
 import 'login_page.dart';
+import 'pages/community_page.dart'; // ✅ Community Page
+
 
 class HomePage extends StatelessWidget {
   final String userEmail;
@@ -21,7 +23,24 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+
+      appBar: AppBar(
+        title: const Text("Sραcуи"),
+        backgroundColor: Colors.deepPurple,
+        actions: [
+          TextButton(
+            onPressed: () {},
+            child: const Text(
+              "+Dept",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {},
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
@@ -107,6 +126,7 @@ class HomePage extends StatelessWidget {
               ),
             ],
           ),
+
         ),
       ),
 
@@ -142,6 +162,7 @@ class HomePage extends StatelessWidget {
               ),
             ],
           ),
+
         ),
       ),
     );
@@ -168,7 +189,8 @@ class HomePage extends StatelessWidget {
   }
 
   // Helper: Feature Card
-  Widget buildFeatureCard(BuildContext context, String title, IconData icon, Color color, Widget page) {
+  Widget buildFeatureCard(
+      BuildContext context, String title, IconData icon, Color color, Widget page) {
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
