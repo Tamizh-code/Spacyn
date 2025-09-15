@@ -40,29 +40,31 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Section with Greetings and Logout
+              // 🔹 Greetings + Logout
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    "D",
+                    "Its time to lead",
                     style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.logout, color: Colors.grey),
                     onPressed: () {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
                             (Route<dynamic> route) => false,
                       );
                     },
@@ -75,27 +77,33 @@ class HomePage extends StatelessWidget {
                 "Hello,",
                 style: TextStyle(fontSize: 32, fontWeight: FontWeight.normal),
               ),
+              Text(
+                userEmail, // show user email
+                style: const TextStyle(fontSize: 22, color: Colors.grey),
+              ),
+              const SizedBox(height: 5),
               const Text(
                 "Welcome Back.",
                 style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 30),
 
-              // 🔹 Search Field
+              // 🔹 Search
               TextField(
                 decoration: InputDecoration(
                   hintText: "Search...",
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none),
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
                   filled: true,
                   fillColor: Colors.grey[200],
                 ),
               ),
               const SizedBox(height: 20),
 
-              // 🔹 Circle Buttons
+              // 🔹 Quick Access Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -107,7 +115,7 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // 🔹 Grid for features
+              // 🔹 Feature Grid
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -115,7 +123,6 @@ class HomePage extends StatelessWidget {
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
                 children: [
-                  // ✅ Fixed: pass userEmail to StudMediaHomePage
                   buildFeatureCard(
                     context,
                     "Stud Media",
@@ -123,11 +130,41 @@ class HomePage extends StatelessWidget {
                     Colors.purple,
                     StudMediaHomePage(userEmail: userEmail),
                   ),
-                  buildFeatureCard(context, "Posts", Icons.post_add, Colors.blue, PostsPage()),
-                  buildFeatureCard(context, "Other Functions", Icons.extension, Colors.orange, OtherFunctionsPage()),
-                  buildFeatureCard(context, "Updates on Dept", Icons.update, Colors.green, UpdatesPage()),
-                  buildFeatureCard(context, "Day to Day Updates", Icons.today, Colors.red, DayUpdatesPage()),
-                  buildFeatureCard(context, "More", Icons.more_horiz, Colors.grey, MorePage()),
+                  buildFeatureCard(
+                    context,
+                    "Posts",
+                    Icons.post_add,
+                    Colors.blue,
+                    PostsPage(),
+                  ),
+                  buildFeatureCard(
+                    context,
+                    "Other Functions",
+                    Icons.extension,
+                    Colors.orange,
+                    OtherFunctionsPage(),
+                  ),
+                  buildFeatureCard(
+                    context,
+                    "Updates on Dept",
+                    Icons.update,
+                    Colors.green,
+                    UpdatesPage(),
+                  ),
+                  buildFeatureCard(
+                    context,
+                    "Day to Day Updates",
+                    Icons.today,
+                    Colors.red,
+                    DayUpdatesPage(),
+                  ),
+                  buildFeatureCard(
+                    context,
+                    "More",
+                    Icons.more_horiz,
+                    Colors.grey,
+                    MorePage(),
+                  ),
                 ],
               ),
             ],
@@ -169,7 +206,9 @@ class HomePage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => CommunityPage()),
+                    MaterialPageRoute(
+                      builder: (context) => CommunityPage(currentUser: userEmail),
+                    ),
                   );
                 },
                 icon: const Icon(Icons.group, color: Colors.grey),
@@ -182,7 +221,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // Helper: Circle Button
+  // 🔹 Circle Button
   Widget buildCircleButton(BuildContext context, IconData icon, String label, Widget page) {
     return Column(
       children: [
@@ -202,9 +241,14 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // Helper: Feature Card
+  // 🔹 Feature Card
   Widget buildFeatureCard(
-      BuildContext context, String title, IconData icon, Color color, Widget page) {
+      BuildContext context,
+      String title,
+      IconData icon,
+      Color color,
+      Widget page,
+      ) {
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),

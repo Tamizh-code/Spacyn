@@ -8,127 +8,234 @@ class PropertiesPage extends StatefulWidget {
 }
 
 class _PropertiesPageState extends State<PropertiesPage> {
-  final List<String> tasks = [];
-  final TextEditingController taskController = TextEditingController();
-
-  void _addTask() {
-    if (taskController.text.trim().isEmpty) return;
-    setState(() {
-      tasks.add(taskController.text.trim());
-      taskController.clear();
-    });
-  }
-
-  void _deleteTask(int index) {
-    setState(() {
-      tasks.removeAt(index);
-    });
-  }
-
-  void _editTask(int index) {
-    taskController.text = tasks[index];
-    setState(() {
-      tasks.removeAt(index);
-    });
-  }
+  DateTime _selectedDate = DateTime.now();
+  Map<String, List<Map<String, dynamic>>> tasks = {};
 
   @override
   Widget build(BuildContext context) {
+    final dateKey = _selectedDate.toIso8601String().split('T')[0];
+    final dayTasks = tasks[dateKey] ?? [];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Properties"),
         backgroundColor: Colors.deepPurple,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              setState(() {
-                tasks.clear();
-              });
-            },
-          ),
-        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // 🔹 Add Task Field
+            // 🔹 Date Selector
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: taskController,
-                    decoration: InputDecoration(
-                      hintText: "Add new work / schedule...",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12),
-                    ),
-                  ),
+                Text(
+                  "Selected Date: $dateKey",
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(width: 10),
                 ElevatedButton(
-                  onPressed: _addTask,
+                  onPressed: () async {
+                    final pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: const ColorScheme.light(
+                              primary: Colors.deepPurple,
+                              onPrimary: Colors.white,
+                              onSurface: Colors.deepPurple,
+                            ),
+                          ),
+                          child: child!,
+                        );
+                      },
+                    );
+                    if (pickedDate != null) {
+                      setState(() {
+                        _selectedDate = pickedDate;
+                      });
+                    }
+                  },
+                  child: const Text("Pick Date"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: const Text("Add"),
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white),
                 ),
               ],
             ),
             const SizedBox(height: 20),
 
+            // 🔹 Add Task Button
+            ElevatedButton.icon(
+              onPressed: () => _showAddTaskDialog(context),
+              icon: const Icon(Icons.add_task),
+              label: const Text("Add Task"),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white),
+            ),
+            const SizedBox(height: 20),
+
             // 🔹 Task List
-            Expanded(
-              child: tasks.isEmpty
-                  ? const Center(
-                child: Text(
-                  "No scheduled work yet!",
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-              )
-                  : ListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 6),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    child: ListTile(
-                      leading: const Icon(Icons.task_alt,
-                          color: Colors.deepPurple),
-                      title: Text(
-                        tasks[index],
-                        style: const TextStyle(fontSize: 16),
+            dayTasks.isEmpty
+                ? const Text(
+              "No tasks for this date.",
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            )
+                : ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: dayTasks.length,
+              itemBuilder: (context, index) {
+                final task = dayTasks[index];
+                return Card(
+                  elevation: 3,
+                  child: ListTile(
+                    leading: IconButton(
+                      icon: Icon(
+                        task["completed"]
+                            ? Icons.check_circle
+                            : Icons.circle_outlined,
+                        color: task["completed"]
+                            ? Colors.green
+                            : Colors.grey,
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit,
-                                color: Colors.blue),
-                            onPressed: () => _editTask(index),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete,
-                                color: Colors.red),
-                            onPressed: () => _deleteTask(index),
-                          ),
-                        ],
+                      onPressed: () {
+                        setState(() {
+                          task["completed"] = !task["completed"];
+                        });
+                      },
+                    ),
+                    title: Text(
+                      task["title"],
+                      style: TextStyle(
+                        decoration: task["completed"]
+                            ? TextDecoration.lineThrough
+                            : null,
+                        color: task["completed"]
+                            ? Colors.grey
+                            : Colors.black,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  );
-                },
-              ),
+                    subtitle: Text(task["description"]),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () {
+                            _showEditTaskDialog(context, index, task);
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            setState(() {
+                              dayTasks.removeAt(index);
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // 🔹 Add Task Dialog
+  void _showAddTaskDialog(BuildContext context) {
+    final titleController = TextEditingController();
+    final descController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Add Task"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(hintText: "Task Title"),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: descController,
+              decoration: const InputDecoration(hintText: "Task Description"),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel")),
+          TextButton(
+            onPressed: () {
+              final dateKey = _selectedDate.toIso8601String().split('T')[0];
+              setState(() {
+                tasks[dateKey] ??= [];
+                tasks[dateKey]!.add({
+                  "title": titleController.text,
+                  "description": descController.text,
+                  "completed": false,
+                });
+              });
+              Navigator.pop(context);
+            },
+            child: const Text("Add"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔹 Edit Task Dialog
+  void _showEditTaskDialog(
+      BuildContext context, int index, Map<String, dynamic> task) {
+    final titleController = TextEditingController(text: task["title"]);
+    final descController = TextEditingController(text: task["description"]);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Edit Task"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(hintText: "Task Title"),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: descController,
+              decoration: const InputDecoration(hintText: "Task Description"),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel")),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                task["title"] = titleController.text;
+                task["description"] = descController.text;
+              });
+              Navigator.pop(context);
+            },
+            child: const Text("Save"),
+          ),
+        ],
       ),
     );
   }
