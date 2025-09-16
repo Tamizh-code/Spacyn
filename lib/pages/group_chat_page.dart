@@ -1,51 +1,69 @@
 import 'package:flutter/material.dart';
+import '../models/group_model.dart';
 
 class GroupChatPage extends StatefulWidget {
-  final String groupName;
-  final List<String> members;
-  final void Function(String newMember)? onAddMember;
+  final Group group;
+  final String currentUser;
 
-  const GroupChatPage({
-    super.key,
-    required this.groupName,
-    required this.members,
-    this.onAddMember,
-  });
+  const GroupChatPage({super.key, required this.group, required this.currentUser});
 
   @override
   State<GroupChatPage> createState() => _GroupChatPageState();
 }
 
 class _GroupChatPageState extends State<GroupChatPage> {
-  final _messages = <Map<String, String>>[];
-  final _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  late Group group;
 
-  void _sendMessage(String text) {
-    if (text.trim().isEmpty) return;
-    setState(() => _messages.add({'from': 'You', 'text': text.trim()}));
-    _controller.clear();
+  @override
+  void initState() {
+    super.initState();
+    group = widget.group;
   }
 
-  void _showAddMemberDialog() {
-    final c = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add member'),
-        content: TextField(controller: c, decoration: const InputDecoration(hintText: 'Username')),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () {
-              final name = c.text.trim();
-              if (name.isNotEmpty) {
-                widget.onAddMember?.call(name);
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
+  void _sendMessage() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    setState(() {
+      group.messages.add({
+        'sender': widget.currentUser,
+        'text': text,
+        'time': DateTime.now(),
+      });
+    });
+    _controller.clear();
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent + 60,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  Widget _buildMessage(Map<String, dynamic> msg) {
+    final isMe = msg['sender'] == widget.currentUser;
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+        decoration: BoxDecoration(
+          color: isMe ? group.color : Colors.grey[300],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            if (!isMe)
+              Text(msg['sender'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            Text(msg['text'], style: TextStyle(color: isMe ? Colors.white : Colors.black)),
+            Text(
+              "${msg['time'].hour.toString().padLeft(2, '0')}:${msg['time'].minute.toString().padLeft(2, '0')}",
+              style: TextStyle(fontSize: 10, color: isMe ? Colors.white70 : Colors.black54),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -54,39 +72,43 @@ class _GroupChatPageState extends State<GroupChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.groupName),
-        actions: [IconButton(icon: const Icon(Icons.person_add), onPressed: _showAddMemberDialog)],
+        title: Text(group.name),
+        backgroundColor: group.color,
       ),
       body: Column(
         children: [
           Expanded(
-            child: _messages.isEmpty
-                ? Center(child: Text('No messages yet. Members: ${widget.members.join(', ')}'))
-                : ListView.builder(
-              reverse: true,
-              itemCount: _messages.length,
-              itemBuilder: (context, i) {
-                final msg = _messages[_messages.length - 1 - i];
-                return ListTile(title: Text(msg['from'] ?? ''), subtitle: Text(msg['text'] ?? ''));
-              },
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: group.messages.length,
+              itemBuilder: (_, i) => _buildMessage(group.messages[i]),
             ),
           ),
-          const Divider(height: 1),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: const InputDecoration(hintText: 'Message'),
-                    onSubmitted: _sendMessage,
+                    decoration: const InputDecoration(
+                      hintText: 'Type a message',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    ),
                   ),
                 ),
-                IconButton(icon: const Icon(Icons.send), onPressed: () => _sendMessage(_controller.text))
+                const SizedBox(width: 6),
+                CircleAvatar(
+                  backgroundColor: group.color,
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    onPressed: _sendMessage,
+                  ),
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
