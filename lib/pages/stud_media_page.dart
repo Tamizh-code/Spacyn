@@ -77,7 +77,7 @@ class _StudMediaHomePageState extends State<StudMediaHomePage> {
     return Scaffold(
       backgroundColor: Colors.deepPurple.shade100,
       appBar: AppBar(
-        title: const Text("Stud Media"),
+        title: const Text("Stud Pedia"),
         backgroundColor: Colors.deepPurple,
         elevation: 4,
         shape: const RoundedRectangleBorder(
