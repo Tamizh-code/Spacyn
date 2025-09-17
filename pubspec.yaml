@@ -7,7 +7,6 @@ version: 1.0.0+1
 environment:
   sdk: ">=3.5.0 <4.0.0"
 
-
 dependencies:
   flutter:
     sdk: flutter
@@ -18,11 +17,24 @@ dependencies:
   file_picker: ^6.1.0
   image_picker: ^1.1.2
 
+  # ✅ Use the GitHub version of charts_flutter (fixed for Flutter 3.7+)
+  charts_flutter:
+    git:
+      url: https://github.com/google/charts.git
+      path: charts_flutter
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^5.0.0
+dependency_overrides:
+  charts_flutter:
+    git:
+      url: https://github.com/google/charts.git
+      path: charts_flutter
+      ref: master
+
 
 flutter:
   uses-material-design: true

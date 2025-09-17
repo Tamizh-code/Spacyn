@@ -158,7 +158,7 @@ class _ProfilePageState extends State<ProfilePage> {
               icon: const Icon(Icons.edit, size: 18),
               label: const Text("Edit Profile"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
+                backgroundColor: Colors.deepPurple,foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
               ),
