@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'dart:typed_data'; // for Web images
+import 'dart:typed_data';
 import 'package:share_plus/share_plus.dart';
 
 class PostPage extends StatefulWidget {
@@ -31,7 +31,7 @@ class _PostPageState extends State<PostPage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
         child: const Icon(Icons.add),
-        onPressed: () => _openCreatePost(),
+        onPressed: _openCreatePost,
       ),
     );
   }
@@ -44,8 +44,7 @@ class _PostPageState extends State<PostPage> {
         child: Image.memory(
           post["imageBytes"],
           width: double.infinity,
-          height: 220,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain, // Show original size
         ),
       );
     }
@@ -63,9 +62,15 @@ class _PostPageState extends State<PostPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(post["title"] ?? "", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  post["title"] ?? "",
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 6),
-                Text(post["description"] ?? "", style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                Text(
+                  post["description"] ?? "",
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -73,7 +78,8 @@ class _PostPageState extends State<PostPage> {
                     Row(
                       children: [
                         IconButton(
-                          icon: Icon(post["isLiked"] ? Icons.favorite : Icons.favorite_border, color: Colors.deepPurple),
+                          icon: Icon(post["isLiked"] ? Icons.favorite : Icons.favorite_border,
+                              color: Colors.deepPurple),
                           onPressed: () {
                             setState(() {
                               post["isLiked"] = !post["isLiked"];
@@ -86,7 +92,7 @@ class _PostPageState extends State<PostPage> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.comment_outlined, color: Colors.deepPurple),
-                      onPressed: () => _openComments(post),
+                      onPressed: () => _openSideComments(post),
                     ),
                     IconButton(
                       icon: const Icon(Icons.share_outlined, color: Colors.deepPurple),
@@ -102,52 +108,98 @@ class _PostPageState extends State<PostPage> {
     );
   }
 
-  void _openComments(Map<String, dynamic> post) {
+  void _openSideComments(Map<String, dynamic> post) {
     final TextEditingController commentController = TextEditingController();
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 20, right: 20, top: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text("Comments", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              const SizedBox(height: 10),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: post["comments"].length,
-                itemBuilder: (context, index) => ListTile(
-                  leading: const Icon(Icons.person, color: Colors.deepPurple),
-                  title: Text(post["comments"][index]),
-                ),
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.9,
+          builder: (_, controller) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              const Divider(),
-              Row(
+              padding: const EdgeInsets.all(16),
+              child: Column(
                 children: [
+                  Container(
+                    height: 4,
+                    width: 40,
+                    color: Colors.grey[300],
+                  ),
+                  const SizedBox(height: 10),
+                  const Text("Comments", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  const SizedBox(height: 10),
                   Expanded(
-                    child: TextField(
-                      controller: commentController,
-                      decoration: const InputDecoration(hintText: "Write a comment...", border: OutlineInputBorder()),
+                    child: ListView.builder(
+                      controller: controller,
+                      itemCount: post["comments"].length,
+                      itemBuilder: (context, index) => ListTile(
+                        leading: const Icon(Icons.person, color: Colors.deepPurple),
+                        title: Text(post["comments"][index]),
+                      ),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.send, color: Colors.deepPurple),
-                    onPressed: () {
-                      setState(() {
-                        post["comments"].add(commentController.text);
-                      });
-                      Navigator.pop(context);
-                      _openComments(post);
-                    },
-                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: commentController,
+                          decoration: InputDecoration(
+                            hintText: "Write a comment...",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.emoji_emotions_outlined, color: Colors.deepPurple),
+                              onPressed: () {
+                                // Simple emoji picker dialog
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => AlertDialog(
+                                    title: const Text("Pick Emoji"),
+                                    content: Wrap(
+                                      spacing: 10,
+                                      children: [
+                                        "😀","😂","😍","😎","😭","👍","🙏"
+                                      ].map((e) => GestureDetector(
+                                        onTap: () {
+                                          commentController.text += e; // append emoji
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text(e, style: const TextStyle(fontSize: 24)),
+                                      )).toList(),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.send, color: Colors.deepPurple),
+                        onPressed: () {
+                          if (commentController.text.trim().isEmpty) return;
+                          setState(() {
+                            post["comments"].add(commentController.text);
+                          });
+                          commentController.clear();
+                        },
+                      ),
+                    ],
+                  )
                 ],
-              )
-            ],
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -183,20 +235,20 @@ class _PostPageState extends State<PostPage> {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple,foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple, foregroundColor: Colors.white),
                   icon: const Icon(Icons.image),
                   label: const Text("Pick Image"),
                   onPressed: () async {
                     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
                     if (result != null && result.files.isNotEmpty) {
                       imageBytes = result.files.first.bytes;
-                      setState(() {}); // refresh UI
+                      setState(() {});
                     }
                   },
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple,foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple, foregroundColor: Colors.white),
                   child: const Text("Post"),
                   onPressed: () {
                     setState(() {
