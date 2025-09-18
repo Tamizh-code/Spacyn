@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'election_page.dart';
+import 'election_dashboard.dart';
 
 class ElectionLoginPage extends StatefulWidget {
   const ElectionLoginPage({super.key});
@@ -16,17 +16,14 @@ class _ElectionLoginPageState extends State<ElectionLoginPage> {
     String enteredId = _idController.text.trim();
 
     if (enteredId.isEmpty) {
-      setState(() {
-        _errorMessage = "Please enter your Student ID";
-      });
+      setState(() => _errorMessage = "Please enter your Student ID");
       return;
     }
 
-    // Navigate to ElectionPage
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => ElectionPage(studentId: enteredId),
+        builder: (_) => ElectionDashboard(studentId: enteredId),
       ),
     );
   }
@@ -41,19 +38,24 @@ class _ElectionLoginPageState extends State<ElectionLoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("Enter Student ID", style: TextStyle(fontSize: 18)),
+              const Text("Enter Student ID", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
               TextField(
                 controller: _idController,
                 decoration: InputDecoration(
                   hintText: "Student ID",
                   errorText: _errorMessage,
-                  border: const OutlineInputBorder(),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
-              const SizedBox(height: 10),
-              ElevatedButton(
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
                 onPressed: _login,
-                child: const Text("Login"),
+                icon: const Icon(Icons.login),
+                label: const Text("Login"),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 45),
+                ),
               ),
             ],
           ),
