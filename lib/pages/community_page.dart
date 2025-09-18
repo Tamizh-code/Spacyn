@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/group_model.dart';
 import 'group_info_page.dart';
 
+
 class CommunityPage extends StatefulWidget {
   final String currentUser;
   const CommunityPage({super.key, this.currentUser = "Guest"});
@@ -50,7 +51,7 @@ class _CommunityPageState extends State<CommunityPage> {
       id: id,
       name: name,
       imageUrl: imageUrl,
-      color: color ?? Colors.blueGrey,
+      color: color ?? Colors.deepPurple,
       members: [widget.currentUser],
       admin: widget.currentUser,
     );
@@ -103,7 +104,7 @@ class _CommunityPageState extends State<CommunityPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Community'),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.deepPurple,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: Padding(
@@ -164,6 +165,7 @@ class _CommunityPageState extends State<CommunityPage> {
         onPressed: _showCreateGroupDialog,
         child: const Icon(Icons.add),
       ),
+
     );
   }
 }

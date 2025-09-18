@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-
-// Import all pages
+import 'package:project/pages/post_page.dart';
 import 'pages/stud_media_page.dart';
-import 'pages/posts_page.dart';
 import 'pages/other_functions_page.dart';
 import 'pages/updates_page.dart';
 import 'pages/day_updates_page.dart';
 import 'pages/more_page.dart';
-import 'pages/post_page.dart';
+import 'pages/profile_page.dart';
 import 'pages/group_page.dart';
 import 'pages/alerts_page.dart';
 import 'pages/events_page.dart';
@@ -15,156 +13,130 @@ import 'login_page.dart';
 import 'pages/community_page.dart';
 import 'pages/properties_page.dart';
 
-class HomePage extends StatelessWidget {
-  final String userEmail;
+class HomePage extends StatefulWidget {
+  final String userEmail; // this acts as StudentId also
 
   const HomePage({super.key, required this.userEmail});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool isDarkMode = false; // state for dark mode
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sραcуи"),
+        title: const Text(
+          "Sραcуи",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
         backgroundColor: Colors.deepPurple,
         actions: [
-          TextButton(
-            onPressed: () {},
-            child: const Text(
-              "+Dept",
-              style: TextStyle(color: Colors.white),
-            ),
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => AlertsPage()));
+            },
           ),
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () {},
+            onPressed: () {
+              _openSettings(context);
+            },
           ),
         ],
       ),
-
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔹 Greetings + Logout
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Its time to lead",
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.logout, color: Colors.grey),
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
-                            (Route<dynamic> route) => false,
-                      );
-                    },
-                    tooltip: 'Logout',
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
+              // Greeting
               const Text(
-                "Hello,",
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.normal),
+                "Hello 👋",
+                style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
               ),
-              Text(
-                userEmail, // show user email
-                style: const TextStyle(fontSize: 22, color: Colors.grey),
-              ),
-              const SizedBox(height: 5),
-              const Text(
-                "Welcome Back.",
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 30),
+              Text(widget.userEmail,
+                  style: const TextStyle(fontSize: 18, color: Colors.grey)),
+              const SizedBox(height: 25),
 
-              // 🔹 Search
+              // Search Bar
               TextField(
                 decoration: InputDecoration(
                   hintText: "Search...",
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   filled: true,
                   fillColor: Colors.grey[200],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 25),
 
-              // 🔹 Quick Access Buttons
+              // Quick Access Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  buildCircleButton(context, Icons.add_comment, "Post", PostPage()),
-                  buildCircleButton(context, Icons.people, "Group", GroupPage()),
-                  buildCircleButton(context, Icons.notifications, "Alerts", AlertsPage()),
-                  buildCircleButton(context, Icons.event, "Events", EventsPage()),
+                  buildCircleButton(
+                      context,
+                      Icons.person,
+                      "Profile",
+                      ProfilePage(
+                        userEmail: widget.userEmail,
+                        isDarkMode: isDarkMode,
+                        onToggleTheme: (value) {
+                          setState(() => isDarkMode = value);
+                        },
+                      )),
+                  buildCircleButton(
+                      context, Icons.people, "Group", GroupPage()),
+                  buildCircleButton(
+                      context, Icons.event, "Events", EventsPage()),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 25),
 
-              // 🔹 Feature Grid
+              // Feature Grid
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
                 children: [
                   buildFeatureCard(
-                    context,
-                    "Stud Media",
-                    Icons.school,
-                    Colors.purple,
-                    StudMediaHomePage(userEmail: userEmail),
-                  ),
+                      context,
+                      "Stud Media",
+                      Icons.school,
+                      Colors.purple,
+                      StudMediaHomePage(userEmail: widget.userEmail)),
+                  buildFeatureCard(context, "Posts", Icons.plus_one_rounded,
+                      Colors.blue, PostPage()),
+                  buildFeatureCard(context, "Other Functions",
+                      Icons.extension, Colors.orange, OtherFunctionsPage()),
+                  buildFeatureCard(context, "Updates on Dept", Icons.update,
+                      Colors.green, UpdatesPage()),
+                  buildFeatureCard(context, "Day Updates", Icons.today,
+                      Colors.red, DayUpdatesPage()),
                   buildFeatureCard(
-                    context,
-                    "Posts",
-                    Icons.post_add,
-                    Colors.blue,
-                    PostsPage(),
-                  ),
-                  buildFeatureCard(
-                    context,
-                    "Other Functions",
-                    Icons.extension,
-                    Colors.orange,
-                    OtherFunctionsPage(),
-                  ),
-                  buildFeatureCard(
-                    context,
-                    "Updates on Dept",
-                    Icons.update,
-                    Colors.green,
-                    UpdatesPage(),
-                  ),
-                  buildFeatureCard(
-                    context,
-                    "Day to Day Updates",
-                    Icons.today,
-                    Colors.red,
-                    DayUpdatesPage(),
-                  ),
-                  buildFeatureCard(
-                    context,
-                    "More",
-                    Icons.more_horiz,
-                    Colors.grey,
-                    MorePage(),
-                  ),
+                      context,
+                      "More",
+                      Icons.more_horiz,
+                      Colors.grey,
+                      MorePage(studentId: widget.userEmail)), // ✅ FIXED
                 ],
               ),
             ],
@@ -172,10 +144,11 @@ class HomePage extends StatelessWidget {
         ),
       ),
 
-      // 🔹 Bottom Navigation
+      // Bottom Navigation
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
-        elevation: 0,
+        elevation: 3,
+        shape: const CircularNotchedRectangle(),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Row(
@@ -184,35 +157,43 @@ class HomePage extends StatelessWidget {
               TextButton.icon(
                 onPressed: () {
                   Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PropertiesPage()),
-                  );
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PropertiesPage()));
                 },
                 icon: const Icon(Icons.folder, color: Colors.grey),
-                label: const Text("Properties", style: TextStyle(color: Colors.grey)),
+                label: const Text("Properties",
+                    style: TextStyle(color: Colors.grey)),
               ),
+
+              // 🔹 Center FAB always goes Home
               FloatingActionButton(
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => PostPage()),
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            HomePage(userEmail: widget.userEmail)),
+                        (route) => false,
                   );
                 },
-                backgroundColor: const Color(0xFFE53935),
-                elevation: 0,
-                child: const Icon(Icons.add, color: Colors.white),
+                backgroundColor: Colors.deepPurple,
+                elevation: 3,
+                child: const Icon(Icons.home, color: Colors.white),
               ),
+
               TextButton.icon(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CommunityPage(currentUser: userEmail),
-                    ),
+                        builder: (context) =>
+                            CommunityPage(currentUser: widget.userEmail)),
                   );
                 },
                 icon: const Icon(Icons.group, color: Colors.grey),
-                label: const Text("Community", style: TextStyle(color: Colors.grey)),
+                label: const Text("Community",
+                    style: TextStyle(color: Colors.grey)),
               ),
             ],
           ),
@@ -221,41 +202,36 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // 🔹 Circle Button
-  Widget buildCircleButton(BuildContext context, IconData icon, String label, Widget page) {
+  // Circle Button Widget
+  Widget buildCircleButton(
+      BuildContext context, IconData icon, String label, Widget page) {
     return Column(
       children: [
         InkWell(
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-          },
+          onTap: () => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => page)),
           child: CircleAvatar(
-            radius: 28,
-            backgroundColor: Colors.grey[200],
-            child: Icon(icon, size: 30, color: Colors.black),
+            radius: 30,
+            backgroundColor: Colors.deepPurple.shade50,
+            child: Icon(icon, size: 30, color: Colors.deepPurple),
           ),
         ),
         const SizedBox(height: 6),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.black)),
+        Text(label,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
       ],
     );
   }
 
-  // 🔹 Feature Card
-  Widget buildFeatureCard(
-      BuildContext context,
-      String title,
-      IconData icon,
-      Color color,
-      Widget page,
-      ) {
+  // Feature Card Widget
+  Widget buildFeatureCard(BuildContext context, String title, IconData icon,
+      Color color, Widget page) {
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: InkWell(
-        onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-        },
+        onTap: () => Navigator.push(
+            context, MaterialPageRoute(builder: (context) => page)),
         borderRadius: BorderRadius.circular(15),
         child: Center(
           child: Column(
@@ -263,15 +239,54 @@ class HomePage extends StatelessWidget {
             children: [
               Icon(icon, size: 40, color: color),
               const SizedBox(height: 10),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+              Text(title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // Settings Bottom Sheet
+  void _openSettings(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: const Text("Account"),
+                onTap: () {},
+              ),
+              ListTile(
+                leading: const Icon(Icons.privacy_tip),
+                title: const Text("Privacy"),
+                onTap: () {},
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text("Logout",
+                    style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                        (Route<dynamic> route) => false,
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
