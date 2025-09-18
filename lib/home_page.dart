@@ -14,7 +14,7 @@ import 'pages/community_page.dart';
 import 'pages/properties_page.dart';
 
 class HomePage extends StatefulWidget {
-  final String userEmail;
+  final String userEmail; // this acts as StudentId also
 
   const HomePage({super.key, required this.userEmail});
 
@@ -41,7 +41,8 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => AlertsPage()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => AlertsPage()));
             },
           ),
           IconButton(
@@ -59,9 +60,15 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Greeting
-              Text("Hello 👋",
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black)),
-              Text(widget.userEmail, style: const TextStyle(fontSize: 18, color: Colors.grey)),
+              const Text(
+                "Hello 👋",
+                style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
+              ),
+              Text(widget.userEmail,
+                  style: const TextStyle(fontSize: 18, color: Colors.grey)),
               const SizedBox(height: 25),
 
               // Search Bar
@@ -83,7 +90,10 @@ class _HomePageState extends State<HomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  buildCircleButton(context, Icons.person, "Profile",
+                  buildCircleButton(
+                      context,
+                      Icons.person,
+                      "Profile",
                       ProfilePage(
                         userEmail: widget.userEmail,
                         isDarkMode: isDarkMode,
@@ -91,8 +101,10 @@ class _HomePageState extends State<HomePage> {
                           setState(() => isDarkMode = value);
                         },
                       )),
-                  buildCircleButton(context, Icons.people, "Group", GroupPage()),
-                  buildCircleButton(context, Icons.event, "Events", EventsPage()),
+                  buildCircleButton(
+                      context, Icons.people, "Group", GroupPage()),
+                  buildCircleButton(
+                      context, Icons.event, "Events", EventsPage()),
                 ],
               ),
               const SizedBox(height: 25),
@@ -105,13 +117,26 @@ class _HomePageState extends State<HomePage> {
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
                 children: [
-                  buildFeatureCard(context, "Stud Media", Icons.school, Colors.purple,
+                  buildFeatureCard(
+                      context,
+                      "Stud Media",
+                      Icons.school,
+                      Colors.purple,
                       StudMediaHomePage(userEmail: widget.userEmail)),
-                  buildFeatureCard(context, "Posts", Icons.plus_one_rounded, Colors.blue, PostPage()),
-                  buildFeatureCard(context, "Other Functions", Icons.extension, Colors.orange, OtherFunctionsPage()),
-                  buildFeatureCard(context, "Updates on Dept", Icons.update, Colors.green, UpdatesPage()),
-                  buildFeatureCard(context, "Day Updates", Icons.today, Colors.red, DayUpdatesPage()),
-                  buildFeatureCard(context, "More", Icons.more_horiz, Colors.grey, MorePage()),
+                  buildFeatureCard(context, "Posts", Icons.plus_one_rounded,
+                      Colors.blue, PostPage()),
+                  buildFeatureCard(context, "Other Functions",
+                      Icons.extension, Colors.orange, OtherFunctionsPage()),
+                  buildFeatureCard(context, "Updates on Dept", Icons.update,
+                      Colors.green, UpdatesPage()),
+                  buildFeatureCard(context, "Day Updates", Icons.today,
+                      Colors.red, DayUpdatesPage()),
+                  buildFeatureCard(
+                      context,
+                      "More",
+                      Icons.more_horiz,
+                      Colors.grey,
+                      MorePage(studentId: widget.userEmail)), // ✅ FIXED
                 ],
               ),
             ],
@@ -131,10 +156,14 @@ class _HomePageState extends State<HomePage> {
             children: [
               TextButton.icon(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => PropertiesPage()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PropertiesPage()));
                 },
                 icon: const Icon(Icons.folder, color: Colors.grey),
-                label: const Text("Properties", style: TextStyle(color: Colors.grey)),
+                label: const Text("Properties",
+                    style: TextStyle(color: Colors.grey)),
               ),
 
               // 🔹 Center FAB always goes Home
@@ -142,7 +171,9 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => HomePage(userEmail: widget.userEmail)),
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            HomePage(userEmail: widget.userEmail)),
                         (route) => false,
                   );
                 },
@@ -155,11 +186,14 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => CommunityPage(currentUser: widget.userEmail)),
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            CommunityPage(currentUser: widget.userEmail)),
                   );
                 },
                 icon: const Icon(Icons.group, color: Colors.grey),
-                label: const Text("Community", style: TextStyle(color: Colors.grey)),
+                label: const Text("Community",
+                    style: TextStyle(color: Colors.grey)),
               ),
             ],
           ),
@@ -169,11 +203,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Circle Button Widget
-  Widget buildCircleButton(BuildContext context, IconData icon, String label, Widget page) {
+  Widget buildCircleButton(
+      BuildContext context, IconData icon, String label, Widget page) {
     return Column(
       children: [
         InkWell(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => page)),
+          onTap: () => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => page)),
           child: CircleAvatar(
             radius: 30,
             backgroundColor: Colors.deepPurple.shade50,
@@ -181,18 +217,21 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SizedBox(height: 6),
-        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+        Text(label,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
       ],
     );
   }
 
   // Feature Card Widget
-  Widget buildFeatureCard(BuildContext context, String title, IconData icon, Color color, Widget page) {
+  Widget buildFeatureCard(BuildContext context, String title, IconData icon,
+      Color color, Widget page) {
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: InkWell(
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => page)),
+        onTap: () => Navigator.push(
+            context, MaterialPageRoute(builder: (context) => page)),
         borderRadius: BorderRadius.circular(15),
         child: Center(
           child: Column(
@@ -200,7 +239,9 @@ class _HomePageState extends State<HomePage> {
             children: [
               Icon(icon, size: 40, color: color),
               const SizedBox(height: 10),
-              Text(title, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -212,7 +253,8 @@ class _HomePageState extends State<HomePage> {
   void _openSettings(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) {
         return Padding(
           padding: const EdgeInsets.all(20),
@@ -231,7 +273,8 @@ class _HomePageState extends State<HomePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text("Logout", style: TextStyle(color: Colors.red)),
+                title: const Text("Logout",
+                    style: TextStyle(color: Colors.red)),
                 onTap: () {
                   Navigator.pushAndRemoveUntil(
                     context,

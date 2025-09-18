@@ -10,16 +10,25 @@ class ElectionLoginPage extends StatefulWidget {
 
 class _ElectionLoginPageState extends State<ElectionLoginPage> {
   final TextEditingController _idController = TextEditingController();
+  String? _errorMessage;
 
   void _login() {
-    if (_idController.text.trim().isNotEmpty) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ElectionPage(studentId: _idController.text.trim()),
-        ),
-      );
+    String enteredId = _idController.text.trim();
+
+    if (enteredId.isEmpty) {
+      setState(() {
+        _errorMessage = "Please enter your Student ID";
+      });
+      return;
     }
+
+    // Navigate to ElectionPage
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ElectionPage(studentId: enteredId),
+      ),
+    );
   }
 
   @override
@@ -33,9 +42,19 @@ class _ElectionLoginPageState extends State<ElectionLoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text("Enter Student ID", style: TextStyle(fontSize: 18)),
-              TextField(controller: _idController),
+              TextField(
+                controller: _idController,
+                decoration: InputDecoration(
+                  hintText: "Student ID",
+                  errorText: _errorMessage,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
               const SizedBox(height: 10),
-              ElevatedButton(onPressed: _login, child: const Text("Login")),
+              ElevatedButton(
+                onPressed: _login,
+                child: const Text("Login"),
+              ),
             ],
           ),
         ),
