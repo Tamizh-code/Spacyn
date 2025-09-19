@@ -23,14 +23,22 @@ class _ProfilePageState extends State<ProfilePage> {
   String name = "Harsath CSE";
   String phone = "+91 98765 43210";
   String location = "Chennai, India";
-  DateTime joinDate = DateTime(2023, 7, 1); // Example join date
+  String department = "CSE"; // ✅ new
+  String year = "Final Year"; // ✅ new
+  String bio = "Flutter & AI Enthusiast"; // ✅ new
+  String github = "https://github.com/harsath"; // ✅ new
+  String linkedin = "https://linkedin.com/in/harsath"; // ✅ new
+  List<String> achievements = ["Hackathon Winner", "Class Representative"]; // ✅ new
+
+  DateTime joinDate = DateTime(2023, 7, 1);
 
   File? _profileImage;
   final ImagePicker _picker = ImagePicker();
 
   // Pick image from gallery
   Future<void> _pickImageFromGallery() async {
-    final XFile? pickedImage = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedImage =
+    await _picker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
       setState(() => _profileImage = File(pickedImage.path));
     }
@@ -38,7 +46,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // Pick image from camera
   Future<void> _pickImageFromCamera() async {
-    final XFile? pickedImage = await _picker.pickImage(source: ImageSource.camera);
+    final XFile? pickedImage =
+    await _picker.pickImage(source: ImageSource.camera);
     if (pickedImage != null) {
       setState(() => _profileImage = File(pickedImage.path));
     }
@@ -57,7 +66,9 @@ class _ProfilePageState extends State<ProfilePage> {
           decoration: InputDecoration(hintText: "Enter new $field"),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel")),
           ElevatedButton(
             onPressed: () {
               onSave(controller.text);
@@ -102,6 +113,33 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  // Add achievement dialog
+  void _addAchievement() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Add Achievement"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: "Enter achievement"),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel")),
+          ElevatedButton(
+            onPressed: () {
+              setState(() => achievements.add(controller.text));
+              Navigator.pop(context);
+            },
+            child: const Text("Add"),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,7 +169,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: CircleAvatar(
                       radius: 18,
                       backgroundColor: Colors.deepPurple,
-                      child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+                      child: const Icon(Icons.camera_alt,
+                          color: Colors.white, size: 18),
                     ),
                   ),
                 ],
@@ -140,10 +179,13 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 15),
 
             // Name
-            Text(name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(name,
+                style:
+                const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
 
             // Email
-            Text(widget.userEmail, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+            Text(widget.userEmail,
+                style: const TextStyle(fontSize: 16, color: Colors.grey)),
             const SizedBox(height: 5),
 
             // Date of joining
@@ -152,24 +194,61 @@ class _ProfilePageState extends State<ProfilePage> {
 
             const SizedBox(height: 20),
 
-            // Edit Name button
+            // Edit button
             ElevatedButton.icon(
-              onPressed: () => _editField("Name", name, (newValue) => setState(() => name = newValue)),
+              onPressed: () =>
+                  _editField("Name", name, (v) => setState(() => name = v)),
               icon: const Icon(Icons.edit, size: 18),
               label: const Text("Edit Profile"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30)),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
               ),
             ),
 
             const SizedBox(height: 25),
 
             // Info Cards
+            _buildInfoCard(Icons.school, "Department", department, true),
+            _buildInfoCard(Icons.access_time, "Year", year, true),
+            _buildInfoCard(Icons.info, "Bio", bio, true),
             _buildInfoCard(Icons.email, "Email", widget.userEmail, false),
             _buildInfoCard(Icons.phone, "Phone", phone, true),
             _buildInfoCard(Icons.location_on, "Location", location, true),
+            _buildInfoCard(Icons.code, "GitHub", github, true),
+            _buildInfoCard(Icons.work, "LinkedIn", linkedin, true),
+
+            const SizedBox(height: 20),
+
+            // Achievements Section
+            const Text("Achievements",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Column(
+              children: achievements
+                  .map((ach) => Card(
+                child: ListTile(
+                  leading: const Icon(Icons.star,
+                      color: Colors.deepPurple),
+                  title: Text(ach),
+                ),
+              ))
+                  .toList(),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton.icon(
+              onPressed: _addAchievement,
+              icon: const Icon(Icons.add),
+              label: const Text("Add Achievement"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+              ),
+            ),
 
             const SizedBox(height: 30),
 
@@ -177,35 +256,45 @@ class _ProfilePageState extends State<ProfilePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Settings", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text("Settings",
+                    style:
+                    TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                   elevation: 3,
                   child: Column(
                     children: [
                       SwitchListTile(
                         title: const Text("Dark Mode"),
-                        secondary: const Icon(Icons.dark_mode, color: Colors.deepPurple),
+                        secondary:
+                        const Icon(Icons.dark_mode, color: Colors.deepPurple),
                         value: widget.isDarkMode,
                         onChanged: widget.onToggleTheme,
                       ),
                       const Divider(height: 0),
                       ListTile(
-                        leading: const Icon(Icons.lock, color: Colors.deepPurple),
+                        leading: const Icon(Icons.lock,
+                            color: Colors.deepPurple),
                         title: const Text("Privacy"),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        trailing:
+                        const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: () => ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(content: Text("Privacy settings"))),
+                            .showSnackBar(const SnackBar(
+                            content: Text("Privacy settings"))),
                       ),
                       const Divider(height: 0),
                       ListTile(
                         leading: const Icon(Icons.logout, color: Colors.red),
-                        title: const Text("Logout", style: TextStyle(color: Colors.red)),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        title: const Text("Logout",
+                            style: TextStyle(color: Colors.red)),
+                        trailing:
+                        const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: () => Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                          MaterialPageRoute(
+                              builder: (_) => const LoginPage()),
                               (route) => false,
                         ),
                       ),
@@ -220,7 +309,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildInfoCard(IconData icon, String title, String subtitle, bool editable) {
+  Widget _buildInfoCard(
+      IconData icon, String title, String subtitle, bool editable) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
@@ -232,12 +322,16 @@ class _ProfilePageState extends State<ProfilePage> {
         trailing: editable
             ? IconButton(
           icon: const Icon(Icons.edit, color: Colors.deepPurple),
-          onPressed: () => _editField(title, subtitle, (newValue) {
-            setState(() {
-              if (title == "Phone") phone = newValue;
-              if (title == "Location") location = newValue;
-            });
-          }),
+          onPressed: () =>
+              _editField(title, subtitle, (newValue) => setState(() {
+                if (title == "Phone") phone = newValue;
+                if (title == "Location") location = newValue;
+                if (title == "Department") department = newValue;
+                if (title == "Year") year = newValue;
+                if (title == "Bio") bio = newValue;
+                if (title == "GitHub") github = newValue;
+                if (title == "LinkedIn") linkedin = newValue;
+              })),
         )
             : null,
       ),

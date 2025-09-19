@@ -16,6 +16,7 @@ dependencies:
   url_launcher: ^6.3.1
   file_picker: ^6.1.0
   image_picker: ^1.1.2
+  fl_chart: ^0.68.0
 
   # ✅ Use the GitHub version of charts_flutter (fixed for Flutter 3.7+)
   charts_flutter:
