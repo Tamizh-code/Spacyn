@@ -1,78 +1,73 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:project/login_page.dart'; // your real login page
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userEmail;
-  final bool isDarkMode;
-  final Function(bool) onToggleTheme;
 
-  const ProfilePage({
-    super.key,
-    required this.userEmail,
-    required this.isDarkMode,
-    required this.onToggleTheme,
-  });
+  const ProfilePage({super.key, required this.userEmail});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
   String name = "Harsath CSE";
   String phone = "+91 98765 43210";
   String location = "Chennai, India";
-  String department = "CSE"; // ✅ new
-  String year = "Final Year"; // ✅ new
-  String bio = "Flutter & AI Enthusiast"; // ✅ new
-  String github = "https://github.com/harsath"; // ✅ new
-  String linkedin = "https://linkedin.com/in/harsath"; // ✅ new
-  List<String> achievements = ["Hackathon Winner", "Class Representative"]; // ✅ new
+  String github = "https://github.com/username";
+  String linkedIn = "https://www.linkedin.com/in/username";
+  String twitter = "https://twitter.com/username";
 
-  DateTime joinDate = DateTime(2023, 7, 1);
+  bool isDarkMode = false;
+  File? profileImage;
+  late AnimationController _progressController;
+  late Animation<double> _progressAnimation;
 
-  File? _profileImage;
-  final ImagePicker _picker = ImagePicker();
-
-  // Pick image from gallery
-  Future<void> _pickImageFromGallery() async {
-    final XFile? pickedImage =
-    await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedImage != null) {
-      setState(() => _profileImage = File(pickedImage.path));
-    }
+  @override
+  void initState() {
+    super.initState();
+    _progressController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+    _progressAnimation = Tween<double>(begin: 0, end: profileCompletion())
+        .animate(CurvedAnimation(parent: _progressController, curve: Curves.easeInOut));
+    _progressController.forward();
   }
 
-  // Pick image from camera
-  Future<void> _pickImageFromCamera() async {
-    final XFile? pickedImage =
-    await _picker.pickImage(source: ImageSource.camera);
-    if (pickedImage != null) {
-      setState(() => _profileImage = File(pickedImage.path));
-    }
+  double profileCompletion() {
+    int completed = 0;
+    if (name.isNotEmpty) completed++;
+    if (phone.isNotEmpty) completed++;
+    if (location.isNotEmpty) completed++;
+    if (github.isNotEmpty) completed++;
+    if (linkedIn.isNotEmpty) completed++;
+    if (twitter.isNotEmpty) completed++;
+    return completed / 6;
   }
 
-  // Edit info field
   void _editField(String field, String currentValue, Function(String) onSave) {
-    final controller = TextEditingController(text: currentValue);
+    TextEditingController controller = TextEditingController(text: currentValue);
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: Text("Edit $field"),
         content: TextField(
           controller: controller,
           decoration: InputDecoration(hintText: "Enter new $field"),
         ),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
           ElevatedButton(
             onPressed: () {
               onSave(controller.text);
               Navigator.pop(context);
+              _animateProgress();
             },
             child: const Text("Save"),
           ),
@@ -81,63 +76,32 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Show dialog to choose camera/gallery
-  void _showImagePickerOptions() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo),
-              title: const Text("Pick from Gallery"),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImageFromGallery();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text("Take a Photo"),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImageFromCamera();
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+  void _animateProgress() {
+    _progressController.reset();
+    _progressAnimation = Tween<double>(begin: 0, end: profileCompletion())
+        .animate(CurvedAnimation(parent: _progressController, curve: Curves.easeInOut));
+    _progressController.forward();
   }
 
-  // Add achievement dialog
-  void _addAchievement() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Add Achievement"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: "Enter achievement"),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel")),
-          ElevatedButton(
-            onPressed: () {
-              setState(() => achievements.add(controller.text));
-              Navigator.pop(context);
-            },
-            child: const Text("Add"),
-          ),
-        ],
-      ),
-    );
+  void _pickProfileImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() {
+        profileImage = File(picked.path);
+      });
+    }
+  }
+
+  void _copyToClipboard(String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$label copied")));
+  }
+
+  Future<void> _launchURL(String url) async {
+    if (!await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Could not open link")));
+    }
   }
 
   @override
@@ -147,170 +111,147 @@ class _ProfilePageState extends State<ProfilePage> {
         title: const Text("Profile"),
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () => setState(() => isDarkMode = !isDarkMode),
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Profile picture
-            GestureDetector(
-              onTap: _showImagePickerOptions,
-              child: Stack(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDarkMode
+                ? [Colors.grey.shade900, Colors.black]
+                : [Colors.deepPurple.shade50, Colors.deepPurple.shade100],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Stack(
                 children: [
                   CircleAvatar(
                     radius: 60,
-                    backgroundImage: _profileImage != null
-                        ? FileImage(_profileImage!) as ImageProvider
-                        : const AssetImage("assets/images/profile.jpg"),
+                    backgroundImage: profileImage != null
+                        ? FileImage(profileImage!)
+                        : const AssetImage("assets/images/profile.jpg") as ImageProvider,
                   ),
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: CircleAvatar(
-                      radius: 18,
-                      backgroundColor: Colors.deepPurple,
-                      child: const Icon(Icons.camera_alt,
-                          color: Colors.white, size: 18),
+                    child: InkWell(
+                      onTap: _pickProfileImage,
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.deepPurple,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 15),
-
-            // Name
-            Text(name,
-                style:
-                const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-
-            // Email
-            Text(widget.userEmail,
-                style: const TextStyle(fontSize: 16, color: Colors.grey)),
-            const SizedBox(height: 5),
-
-            // Date of joining
-            Text("Joined on: ${joinDate.day}-${joinDate.month}-${joinDate.year}",
-                style: const TextStyle(fontSize: 14, color: Colors.grey)),
-
-            const SizedBox(height: 20),
-
-            // Edit button
-            ElevatedButton.icon(
-              onPressed: () =>
-                  _editField("Name", name, (v) => setState(() => name = v)),
-              icon: const Icon(Icons.edit, size: 18),
-              label: const Text("Edit Profile"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30)),
-                padding:
-                const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+              const SizedBox(height: 15),
+              Text(name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              GestureDetector(
+                onTap: () => _copyToClipboard(widget.userEmail, "Email"),
+                child: Text(widget.userEmail, style: const TextStyle(fontSize: 16, color: Colors.grey)),
               ),
-            ),
+              const SizedBox(height: 10),
 
-            const SizedBox(height: 25),
-
-            // Info Cards
-            _buildInfoCard(Icons.school, "Department", department, true),
-            _buildInfoCard(Icons.access_time, "Year", year, true),
-            _buildInfoCard(Icons.info, "Bio", bio, true),
-            _buildInfoCard(Icons.email, "Email", widget.userEmail, false),
-            _buildInfoCard(Icons.phone, "Phone", phone, true),
-            _buildInfoCard(Icons.location_on, "Location", location, true),
-            _buildInfoCard(Icons.code, "GitHub", github, true),
-            _buildInfoCard(Icons.work, "LinkedIn", linkedin, true),
-
-            const SizedBox(height: 20),
-
-            // Achievements Section
-            const Text("Achievements",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Column(
-              children: achievements
-                  .map((ach) => Card(
-                child: ListTile(
-                  leading: const Icon(Icons.star,
-                      color: Colors.deepPurple),
-                  title: Text(ach),
+              // Animated Profile Completion
+              AnimatedBuilder(
+                animation: _progressAnimation,
+                builder: (context, child) => LinearProgressIndicator(
+                  value: _progressAnimation.value,
+                  backgroundColor: Colors.grey.shade300,
+                  color: Colors.deepPurple,
                 ),
-              ))
-                  .toList(),
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton.icon(
-              onPressed: _addAchievement,
-              icon: const Icon(Icons.add),
-              label: const Text("Add Achievement"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
               ),
-            ),
+              const SizedBox(height: 20),
 
-            const SizedBox(height: 30),
+              ElevatedButton.icon(
+                onPressed: () => _editField("Name", name, (val) => setState(() => name = val)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+                ),
+                icon: const Icon(Icons.edit, size: 18),
+                label: const Text("Edit Profile"),
+              ),
+              const SizedBox(height: 25),
 
-            // Settings
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Settings",
-                    style:
-                    TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  elevation: 3,
-                  child: Column(
-                    children: [
-                      SwitchListTile(
-                        title: const Text("Dark Mode"),
-                        secondary:
-                        const Icon(Icons.dark_mode, color: Colors.deepPurple),
-                        value: widget.isDarkMode,
-                        onChanged: widget.onToggleTheme,
-                      ),
-                      const Divider(height: 0),
-                      ListTile(
-                        leading: const Icon(Icons.lock,
-                            color: Colors.deepPurple),
-                        title: const Text("Privacy"),
-                        trailing:
-                        const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () => ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                            content: Text("Privacy settings"))),
-                      ),
-                      const Divider(height: 0),
-                      ListTile(
-                        leading: const Icon(Icons.logout, color: Colors.red),
-                        title: const Text("Logout",
-                            style: TextStyle(color: Colors.red)),
-                        trailing:
-                        const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () => Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const LoginPage()),
-                              (route) => false,
+              _buildInfoCard(Icons.email, "Email", widget.userEmail, false, true),
+              _buildInfoCard(Icons.phone, "Phone", phone, true, true),
+              _buildInfoCard(Icons.location_on, "Location", location, true, false),
+
+              const SizedBox(height: 25),
+              const Text("Social Links", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              _buildSocialCard(Icons.code, "GitHub", github, () => _launchURL(github)),
+              _buildSocialCard(Icons.business, "LinkedIn", linkedIn, () => _launchURL(linkedIn)),
+              _buildSocialCard(Icons.alternate_email, "Twitter", twitter, () => _launchURL(twitter)),
+
+              const SizedBox(height: 30),
+
+              // Settings Section
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Settings", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  Card(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 3,
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.lock, color: Colors.deepPurple),
+                          title: const Text("Privacy"),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Privacy settings")));
+                          },
                         ),
-                      ),
-                    ],
+                        const Divider(height: 0),
+                        ListTile(
+                          leading: const Icon(Icons.notifications, color: Colors.deepPurple),
+                          title: const Text("Notifications"),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Notification settings")));
+                          },
+                        ),
+                        const Divider(height: 0),
+                        ListTile(
+                          leading: const Icon(Icons.logout, color: Colors.red),
+                          title: const Text("Logout", style: TextStyle(color: Colors.red)),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          onTap: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildInfoCard(
-      IconData icon, String title, String subtitle, bool editable) {
+  Widget _buildInfoCard(IconData icon, String title, String subtitle, bool editable, bool copyable) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
@@ -319,22 +260,46 @@ class _ProfilePageState extends State<ProfilePage> {
         leading: Icon(icon, color: Colors.deepPurple),
         title: Text(title),
         subtitle: Text(subtitle),
-        trailing: editable
-            ? IconButton(
-          icon: const Icon(Icons.edit, color: Colors.deepPurple),
-          onPressed: () =>
-              _editField(title, subtitle, (newValue) => setState(() {
-                if (title == "Phone") phone = newValue;
-                if (title == "Location") location = newValue;
-                if (title == "Department") department = newValue;
-                if (title == "Year") year = newValue;
-                if (title == "Bio") bio = newValue;
-                if (title == "GitHub") github = newValue;
-                if (title == "LinkedIn") linkedin = newValue;
-              })),
-        )
-            : null,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (copyable)
+              IconButton(
+                  icon: const Icon(Icons.copy, color: Colors.deepPurple),
+                  onPressed: () => _copyToClipboard(subtitle, title)),
+            if (editable)
+              IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.deepPurple),
+                  onPressed: () => _editField(title, subtitle, (newValue) {
+                    setState(() {
+                      if (title == "Phone") phone = newValue;
+                      if (title == "Location") location = newValue;
+                      _animateProgress();
+                    });
+                  })),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildSocialCard(IconData icon, String title, String url, VoidCallback onTap) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: Icon(icon, color: Colors.deepPurple),
+        title: Text(title),
+        subtitle: Text(url),
+        trailing: IconButton(icon: const Icon(Icons.launch, color: Colors.deepPurple), onPressed: onTap),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _progressController.dispose();
+    super.dispose();
   }
 }
