@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:project/theme.dart'; // import theme file
 import 'package:project/pages/post_page.dart';
 import 'pages/stud_media_page.dart';
 import 'pages/other_functions_page.dart';
@@ -16,185 +15,213 @@ import 'pages/properties_page.dart';
 
 class HomePage extends StatefulWidget {
   final String userEmail;
-
   const HomePage({super.key, required this.userEmail});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  bool isDarkMode = false;
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  bool showSearchBar = false;
+  late final AnimationController _controller;
+  late final Animation<double> _heightAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
+    _heightAnimation = Tween<double>(begin: 0, end: 60).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  void _toggleSearchBar() {
+    setState(() {
+      showSearchBar = !showSearchBar;
+      if (showSearchBar) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: isDarkMode ? AppTheme.darkTheme : AppTheme.lightTheme,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Sραcуи"),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AlertsPage()));
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.settings_outlined),
-              onPressed: () => _openSettings(context),
-            ),
-          ],
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Greeting
-              Text("Hello 👋", style: Theme.of(context).textTheme.headlineMedium),
-              Text(widget.userEmail,
-                  style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(height: 20),
-
-              // Search Bar
-              TextField(
-                decoration: InputDecoration(
-                  hintText: "Search...",
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Theme.of(context).colorScheme.surfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 25),
-
-              // Quick Access Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _circleButton(Icons.person, "Profile",
-                      ProfilePage(userEmail: widget.userEmail, isDarkMode: isDarkMode, onToggleTheme: _toggleTheme)),
-                  _circleButton(Icons.people, "Group", GroupPage()),
-                  _circleButton(Icons.event, "Events", EventsPage()),
-                ],
-              ),
-              const SizedBox(height: 30),
-
-              // Features Grid
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                children: [
-                  _featureCard("Stud Media", Icons.school, Colors.purple,
-                      StudMediaHomePage(userEmail: widget.userEmail)),
-                  _featureCard("Posts", Icons.add_box_outlined, Colors.blue,
-                      PostPage()),
-                  _featureCard("Other Functions", Icons.extension,
-                      Colors.orange, OtherFunctionsPage()),
-                  _featureCard("Updates on Dept", Icons.update, Colors.green,
-                      UpdatesPage()),
-                  _featureCard("Day Updates", Icons.today, Colors.red,
-                      DayUpdatesPage()),
-                  _featureCard("More", Icons.more_horiz, Colors.grey,
-                      MorePage(studentId: widget.userEmail)),
-                ],
-              ),
-            ],
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF6A0DAD), Color(0xFF1E90FF)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
-
-        // Bottom Nav
-        bottomNavigationBar: BottomAppBar(
-          shape: const CircularNotchedRectangle(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.folder_outlined),
-                  onPressed: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => PropertiesPage())),
+                // Profile + Hello + Group Button + Search Icon
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                ProfilePage(userEmail: widget.userEmail)),
+                      ),
+                      child: const CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage("assets/images/profile.jpg"),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Hello 👋",
+                            style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                          Text(
+                            widget.userEmail,
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Group Button
+                    InkWell(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => GroupPage()),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.orangeAccent,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        child: const Icon(Icons.group, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Hidden Search Icon
+                    InkWell(
+                      onTap: _toggleSearchBar,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        child: const Icon(Icons.search, color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
-                FloatingActionButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              HomePage(userEmail: widget.userEmail)),
-                          (route) => false,
-                    );
-                  },
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  child: const Icon(Icons.home, color: Colors.white),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.group_outlined),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) =>
-                            CommunityPage(currentUser: widget.userEmail)),
+                const SizedBox(height: 15),
+
+                // Animated Search Field (hidden initially)
+                SizeTransition(
+                  sizeFactor: _heightAnimation.drive(Tween(begin: 0.0, end: 1.0)),
+                  axisAlignment: -1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const TextField(
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: "Type to search...",
+                        hintStyle: TextStyle(color: Colors.white70),
+                        prefixIcon: Icon(Icons.search, color: Colors.white),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 15),
+                      ),
+                    ),
                   ),
+                ),
+                if (showSearchBar) const SizedBox(height: 25),
+
+                // Feature Grid
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  children: [
+                    buildFeatureCard(context, "Stud Media", Icons.school,
+                        Colors.purpleAccent, StudMediaHomePage(userEmail: widget.userEmail)),
+                    buildFeatureCard(context, "Posts", Icons.plus_one_rounded,
+                        Colors.blueAccent, PostPage()),
+                    buildFeatureCard(context, "Other Functions", Icons.extension,
+                        Colors.orangeAccent, OtherFunctionsPage()),
+                    buildFeatureCard(context, "Updates on Dept", Icons.update,
+                        Colors.lightBlueAccent, UpdatesPage()),
+                    buildFeatureCard(context, "Day Updates", Icons.today,
+                        Colors.pinkAccent, DayUpdatesPage()),
+                    buildFeatureCard(context, "More", Icons.more_horiz,
+                        Colors.grey, MorePage(studentId: widget.userEmail)),
+                  ],
                 ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
 
-  void _toggleTheme(bool value) {
-    setState(() => isDarkMode = value);
-  }
-
-  Widget _circleButton(IconData icon, String label, Widget page) {
-    return Column(
-      children: [
-        InkWell(
-          borderRadius: BorderRadius.circular(40),
-          onTap: () => Navigator.push(
-              context, MaterialPageRoute(builder: (context) => page)),
-          child: CircleAvatar(
-            radius: 32,
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            child: Icon(icon,
-                size: 28, color: Theme.of(context).colorScheme.onPrimaryContainer),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(label, style: Theme.of(context).textTheme.bodyMedium),
-      ],
-    );
-  }
-
-  Widget _featureCard(
-      String title, IconData icon, Color color, Widget page) {
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () =>
-            Navigator.push(context, MaterialPageRoute(builder: (_) => page)),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.transparent,
+        elevation: 0,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, size: 36, color: color),
-              const SizedBox(height: 8),
-              Text(title,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600, color: Colors.black87)),
+              IconButton(
+                icon: const Icon(Icons.folder_outlined, color: Color(0xFF00CED1)),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => PropertiesPage()),
+                ),
+              ),
+              FloatingActionButton(
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => HomePage(userEmail: widget.userEmail)),
+                        (route) => false,
+                  );
+                },
+                backgroundColor: Colors.white,
+                child: const Icon(Icons.home, color: Colors.deepPurple),
+              ),
+              IconButton(
+                icon: const Icon(Icons.group, color: Color(0xFFFFA500)),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => CommunityPage(currentUser: widget.userEmail)),
+                ),
+              ),
             ],
           ),
         ),
@@ -202,45 +229,43 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _openSettings(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text("Account"),
-              onTap: () {},
+  Widget buildFeatureCard(BuildContext context, String title, IconData icon, Color color, Widget page) {
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      shadowColor: Colors.black45,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => page)),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: LinearGradient(
+              colors: [color.withOpacity(0.85), Colors.deepPurple.shade400],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            ListTile(
-              leading: const Icon(Icons.privacy_tip_outlined),
-              title: const Text("Privacy"),
-              onTap: () {},
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 4,
+                offset: Offset(2, 2),
+              )
+            ],
+          ),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 38, color: Colors.white),
+                const SizedBox(height: 10),
+                Text(title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.1)),
+              ],
             ),
-            SwitchListTile(
-              value: isDarkMode,
-              onChanged: _toggleTheme,
-              title: const Text("Dark Mode"),
-              secondary: const Icon(Icons.dark_mode_outlined),
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text("Logout",
-                  style: TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                      (Route<dynamic> route) => false,
-                );
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
