@@ -5,11 +5,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:typed_data';
 
 class FunctionItem {
-  final String userName;         // ✅ New: User's name
-  final String collegeName;      // College name
-  final String content;          // Function category
-  final String contactNumber;    // Contact number
-  final Uint8List? imageBytes;   // Uploaded image
+  final String userName;
+  final String collegeName;
+  final String content;
+  final String contactNumber;
+  final Uint8List? imageBytes;
 
   FunctionItem({
     required this.userName,
@@ -45,9 +45,11 @@ class _OtherFunctionsPageState extends State<OtherFunctionsPage> {
   Future<void> _launchApplyUrl(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Could not launch application link")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Could not launch application link")),
+        );
+      }
     }
   }
 
@@ -85,7 +87,10 @@ class _OtherFunctionsPageState extends State<OtherFunctionsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(function.collegeName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(
+              function.collegeName,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             const SizedBox(height: 8),
             Text(function.content),
             if (function.imageBytes != null)
@@ -163,7 +168,7 @@ class _OtherFunctionsPageState extends State<OtherFunctionsPage> {
               children: [
                 const Icon(Icons.person, size: 20),
                 const SizedBox(width: 8),
-                Text("User: ${function.userName}"), // ✅ Showing user name
+                Text("User: ${function.userName}"),
               ],
             ),
             const SizedBox(height: 8),
@@ -187,7 +192,7 @@ class _OtherFunctionsPageState extends State<OtherFunctionsPage> {
   }
 
   void _showNewFunctionDialog(BuildContext context) {
-    final TextEditingController userNameController = TextEditingController(); // ✅ User Name
+    final TextEditingController userNameController = TextEditingController();
     final TextEditingController collegeNameController = TextEditingController();
     final TextEditingController categoryController = TextEditingController();
     final TextEditingController contactNumberController = TextEditingController();
@@ -236,7 +241,7 @@ class _OtherFunctionsPageState extends State<OtherFunctionsPage> {
                     const SizedBox(height: 20),
                     TextField(
                       controller: userNameController,
-                      decoration: const InputDecoration(hintText: "Enter your name"), // ✅ User name
+                      decoration: const InputDecoration(hintText: "Enter your name"),
                     ),
                     const SizedBox(height: 10),
                     TextField(
@@ -259,7 +264,13 @@ class _OtherFunctionsPageState extends State<OtherFunctionsPage> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    userNameController.dispose();
+                    collegeNameController.dispose();
+                    categoryController.dispose();
+                    contactNumberController.dispose();
+                    Navigator.pop(context);
+                  },
                   child: const Text("Cancel"),
                 ),
                 ElevatedButton(
@@ -284,6 +295,12 @@ class _OtherFunctionsPageState extends State<OtherFunctionsPage> {
                     }
 
                     _addNewFunction(userName, collegeName, category, contactNumber, selectedImageBytes);
+
+                    userNameController.dispose();
+                    collegeNameController.dispose();
+                    categoryController.dispose();
+                    contactNumberController.dispose();
+
                     Navigator.pop(context);
                   },
                   child: const Text("Post"),
