@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +13,8 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
+class _ProfilePageState extends State<ProfilePage>
+    with SingleTickerProviderStateMixin {
   String name = "Harsath CSE";
   String phone = "+91 98765 43210";
   String location = "Chennai, India";
@@ -35,7 +35,8 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
       duration: const Duration(seconds: 1),
     );
     _progressAnimation = Tween<double>(begin: 0, end: profileCompletion())
-        .animate(CurvedAnimation(parent: _progressController, curve: Curves.easeInOut));
+        .animate(CurvedAnimation(
+        parent: _progressController, curve: Curves.easeInOut));
     _progressController.forward();
   }
 
@@ -51,24 +52,40 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   }
 
   void _editField(String field, String currentValue, Function(String) onSave) {
-    TextEditingController controller = TextEditingController(text: currentValue);
+    TextEditingController controller =
+    TextEditingController(text: currentValue);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Edit $field"),
+        backgroundColor: Colors.white,
+        shape:
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text("Edit $field",
+            style: const TextStyle(fontWeight: FontWeight.bold)),
         content: TextField(
           controller: controller,
-          decoration: InputDecoration(hintText: "Enter new $field"),
+          decoration: InputDecoration(
+              hintText: "Enter new $field",
+              border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel")),
           ElevatedButton(
             onPressed: () {
               onSave(controller.text);
               Navigator.pop(context);
               _animateProgress();
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurple,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
             child: const Text("Save"),
           ),
         ],
@@ -79,7 +96,8 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   void _animateProgress() {
     _progressController.reset();
     _progressAnimation = Tween<double>(begin: 0, end: profileCompletion())
-        .animate(CurvedAnimation(parent: _progressController, curve: Curves.easeInOut));
+        .animate(CurvedAnimation(
+        parent: _progressController, curve: Curves.easeInOut));
     _progressController.forward();
   }
 
@@ -95,12 +113,15 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
 
   void _copyToClipboard(String text, String label) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$label copied")));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text("$label copied")));
   }
 
   Future<void> _launchURL(String url) async {
-    if (!await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Could not open link")));
+    if (!await launchUrl(Uri.parse(url),
+        mode: LaunchMode.externalApplication)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Could not open link")));
     }
   }
 
@@ -113,17 +134,25 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            icon: Icon(
+              isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              color: isDarkMode ? Colors.white : Colors.black, // Light color for dark mode, black for light mode
+            ),
             onPressed: () => setState(() => isDarkMode = !isDarkMode),
           ),
         ],
+
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: isDarkMode
-                ? [Colors.grey.shade900, Colors.black]
-                : [Colors.deepPurple.shade50, Colors.deepPurple.shade100],
+          gradient: isDarkMode
+              ? LinearGradient(
+            colors: [const Color(0xFF1E1E1E), Colors.black87],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+              : const LinearGradient(
+            colors: [Color(0xFF6A0DAD), Color(0xFF1E90FF)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -138,7 +167,8 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                     radius: 60,
                     backgroundImage: profileImage != null
                         ? FileImage(profileImage!)
-                        : const AssetImage("assets/images/profile.jpg") as ImageProvider,
+                        : const AssetImage("assets/images/profile.jpg")
+                    as ImageProvider,
                   ),
                   Positioned(
                     bottom: 0,
@@ -150,19 +180,27 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.deepPurple,
-                          border: Border.all(color: Colors.white, width: 2),
+                          border:
+                          Border.all(color: Colors.white, width: 2),
                         ),
-                        child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                        child: const Icon(Icons.camera_alt,
+                            color: Colors.white, size: 20),
                       ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 15),
-              Text(name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              Text(name,
+                  style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
               GestureDetector(
                 onTap: () => _copyToClipboard(widget.userEmail, "Email"),
-                child: Text(widget.userEmail, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+                child: Text(widget.userEmail,
+                    style: const TextStyle(
+                        fontSize: 16, color: Colors.white70)),
               ),
               const SizedBox(height: 10),
 
@@ -171,18 +209,24 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                 animation: _progressAnimation,
                 builder: (context, child) => LinearProgressIndicator(
                   value: _progressAnimation.value,
-                  backgroundColor: Colors.grey.shade300,
-                  color: Colors.deepPurple,
+                  backgroundColor: Colors.white24,
+                  color: Colors.tealAccent,
+                  minHeight: 6,
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
               const SizedBox(height: 20),
 
               ElevatedButton.icon(
-                onPressed: () => _editField("Name", name, (val) => setState(() => name = val)),
+                onPressed: () =>
+                    _editField("Name", name, (val) => setState(() => name = val)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.deepPurple,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30)),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 25, vertical: 12),
                 ),
                 icon: const Icon(Icons.edit, size: 18),
                 label: const Text("Edit Profile"),
@@ -194,11 +238,18 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
               _buildInfoCard(Icons.location_on, "Location", location, true, false),
 
               const SizedBox(height: 25),
-              const Text("Social Links", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text("Social Links",
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
               const SizedBox(height: 10),
-              _buildSocialCard(Icons.code, "GitHub", github, () => _launchURL(github)),
-              _buildSocialCard(Icons.business, "LinkedIn", linkedIn, () => _launchURL(linkedIn)),
-              _buildSocialCard(Icons.alternate_email, "Twitter", twitter, () => _launchURL(twitter)),
+              _buildSocialCard(Icons.code, "GitHub", github, true,
+                      () => _launchURL(github)),
+              _buildSocialCard(Icons.business, "LinkedIn", linkedIn, true,
+                      () => _launchURL(linkedIn)),
+              _buildSocialCard(Icons.alternate_email, "Twitter", twitter, true,
+                      () => _launchURL(twitter)),
 
               const SizedBox(height: 30),
 
@@ -206,37 +257,51 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Settings", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text("Settings",
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
                   const SizedBox(height: 12),
                   Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                     elevation: 3,
                     child: Column(
                       children: [
                         ListTile(
-                          leading: const Icon(Icons.lock, color: Colors.deepPurple),
+                          leading: const Icon(Icons.lock,
+                              color: Colors.deepPurple),
                           title: const Text("Privacy"),
-                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          trailing:
+                          const Icon(Icons.arrow_forward_ios, size: 16),
                           onTap: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Privacy settings")));
+                                const SnackBar(
+                                    content: Text("Privacy settings")));
                           },
                         ),
                         const Divider(height: 0),
                         ListTile(
-                          leading: const Icon(Icons.notifications, color: Colors.deepPurple),
+                          leading: const Icon(Icons.notifications,
+                              color: Colors.deepPurple),
                           title: const Text("Notifications"),
-                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          trailing:
+                          const Icon(Icons.arrow_forward_ios, size: 16),
                           onTap: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Notification settings")));
+                                const SnackBar(
+                                    content: Text("Notification settings")));
                           },
                         ),
                         const Divider(height: 0),
                         ListTile(
-                          leading: const Icon(Icons.logout, color: Colors.red),
-                          title: const Text("Logout", style: TextStyle(color: Colors.red)),
-                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          leading:
+                          const Icon(Icons.logout, color: Colors.red),
+                          title: const Text("Logout",
+                              style: TextStyle(color: Colors.red)),
+                          trailing:
+                          const Icon(Icons.arrow_forward_ios, size: 16),
                           onTap: () => Navigator.pop(context),
                         ),
                       ],
@@ -251,7 +316,8 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildInfoCard(IconData icon, String title, String subtitle, bool editable, bool copyable) {
+  Widget _buildInfoCard(IconData icon, String title, String subtitle,
+      bool editable, bool copyable) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
@@ -274,6 +340,9 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                     setState(() {
                       if (title == "Phone") phone = newValue;
                       if (title == "Location") location = newValue;
+                      if (title == "GitHub") github = newValue;
+                      if (title == "LinkedIn") linkedIn = newValue;
+                      if (title == "Twitter") twitter = newValue;
                       _animateProgress();
                     });
                   })),
@@ -283,7 +352,8 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildSocialCard(IconData icon, String title, String url, VoidCallback onTap) {
+  Widget _buildSocialCard(
+      IconData icon, String title, String url, bool editable, VoidCallback onTap) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
@@ -292,7 +362,26 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
         leading: Icon(icon, color: Colors.deepPurple),
         title: Text(title),
         subtitle: Text(url),
-        trailing: IconButton(icon: const Icon(Icons.launch, color: Colors.deepPurple), onPressed: onTap),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+                icon: const Icon(Icons.launch, color: Colors.deepPurple),
+                onPressed: onTap),
+            if (editable)
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.deepPurple),
+                onPressed: () => _editField(title, url, (newValue) {
+                  setState(() {
+                    if (title == "GitHub") github = newValue;
+                    if (title == "LinkedIn") linkedIn = newValue;
+                    if (title == "Twitter") twitter = newValue;
+                    _animateProgress();
+                  });
+                }),
+              ),
+          ],
+        ),
       ),
     );
   }

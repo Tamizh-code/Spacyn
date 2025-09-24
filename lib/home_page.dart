@@ -64,110 +64,247 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Profile + Hello + Group Button + Search Icon
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) =>
-                                ProfilePage(userEmail: widget.userEmail)),
-                      ),
-                      child: const CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage("assets/images/profile.jpg"),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Top Bar: Logo + Notifications + Settings
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            "Hello 👋",
-                            style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
+                          Row(
+                            children: const [
+                              CircleAvatar(
+                                radius: 22,
+                                backgroundImage: AssetImage("assets/images/Sp_logo.png"),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                "Sραcуи",
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              ),
+                            ],
                           ),
-                          Text(
-                            widget.userEmail,
-                            style: const TextStyle(
-                                fontSize: 16, color: Colors.white70),
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.notifications, color: Colors.white),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => AlertsPage()),
+                                  );
+                                },
+                              ),
+                              PopupMenuButton<String>(
+                                icon: const Icon(Icons.settings, color: Colors.white),
+                                onSelected: (value) {
+                                  switch (value) {
+                                    case 'Logout':
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text('Logout'),
+                                          content: const Text('Are you sure you want to logout?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(ctx),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(ctx);
+                                                Navigator.pushAndRemoveUntil(
+                                                  context,
+                                                  MaterialPageRoute(builder: (_) => LoginPage()),
+                                                      (route) => false,
+                                                );
+                                              },
+                                              child: const Text('Logout'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      break;
+
+                                    case 'Privacy':
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text('Privacy Policy'),
+                                          content: const Text(
+                                              'Your privacy is important to us. [We value your privacy and are committed to protecting your personal information. This app collects only essential data to provide a better user experience, such as email, name, and app usage preferences. We do not share your information with third parties without your consent. All data is securely stored and used solely for app functionality, improvements, and communication. By using this app, you agree to our privacy practices.]'),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () => Navigator.pop(ctx),
+                                                child: const Text('Close'))
+                                          ],
+                                        ),
+                                      );
+                                      break;
+
+                                    case 'Feedback':
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text('Feedback'),
+                                          content: TextField(
+                                            maxLines: 3,
+                                            decoration: const InputDecoration(
+                                                hintText: 'Write your feedback here...'),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () => Navigator.pop(ctx),
+                                                child: const Text('Cancel')),
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(ctx);
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(content: Text('Feedback submitted!')),
+                                                  );
+                                                },
+                                                child: const Text('Submit')),
+                                          ],
+                                        ),
+                                      );
+                                      break;
+
+                                    case 'About':
+                                      showAboutDialog(
+                                        context: context,
+                                        applicationName: 'Sραcуи',
+                                        applicationVersion: '1.0.0',
+                                        applicationIcon: const CircleAvatar(
+                                          backgroundImage: AssetImage("assets/images/spacyn_logo.png"),
+                                        ),
+                                        children: [
+                                          const Text('This is a sample Flutter app for demonstration.'),
+                                        ],
+                                      );
+                                      break;
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) => [
+                                  const PopupMenuItem(value: 'Logout', child: Text('Logout')),
+                                  const PopupMenuItem(value: 'Privacy', child: Text('Privacy Policy')),
+                                  const PopupMenuItem(value: 'Feedback', child: Text('Feedback')),
+                                  const PopupMenuItem(value: 'About', child: Text('About')),
+                                ],
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ),
-                    // Group Button
-                    InkWell(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => GroupPage()),
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.orangeAccent,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        child: const Icon(Icons.group, color: Colors.white),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    // Hidden Search Icon
-                    InkWell(
-                      onTap: _toggleSearchBar,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        child: const Icon(Icons.search, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 15),
+                      const SizedBox(height: 25),
 
-                // Animated Search Field (hidden initially)
-                SizeTransition(
-                  sizeFactor: _heightAnimation.drive(Tween(begin: 0.0, end: 1.0)),
-                  axisAlignment: -1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: const TextField(
-                      style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: "Type to search...",
-                        hintStyle: TextStyle(color: Colors.white70),
-                        prefixIcon: Icon(Icons.search, color: Colors.white),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 15),
+                      // Profile + Hello + Group Button + Search Icon
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      ProfilePage(userEmail: widget.userEmail)),
+                            ),
+                            child: const CircleAvatar(
+                              radius: 40,
+                              backgroundImage: AssetImage("assets/images/profile.jpg"),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Hello 👋",
+                                  style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                ),
+                                Text(
+                                  widget.userEmail,
+                                  style: const TextStyle(
+                                      fontSize: 16, color: Colors.white70),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Group Button
+                          InkWell(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => GroupPage()),
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.orangeAccent,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              child: const Icon(Icons.group, color: Colors.white),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Hidden Search Icon
+                          InkWell(
+                            onTap: _toggleSearchBar,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              child: const Icon(Icons.search, color: Colors.white),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                      const SizedBox(height: 15),
+
+                      // Animated Search Field
+                      SizeTransition(
+                        sizeFactor: _heightAnimation.drive(Tween(begin: 0.0, end: 1.0)),
+                        axisAlignment: -1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: const TextField(
+                            style: TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: "Type to search...",
+                              hintStyle: TextStyle(color: Colors.white70),
+                              prefixIcon: Icon(Icons.search, color: Colors.white),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(vertical: 15),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (showSearchBar) const SizedBox(height: 25),
+                    ],
                   ),
                 ),
-                if (showSearchBar) const SizedBox(height: 25),
+              ),
 
-                // Feature Grid
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  children: [
+              // Grid of features
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                sliver: SliverGrid(
+                  delegate: SliverChildListDelegate([
                     buildFeatureCard(context, "Stud Media", Icons.school,
                         Colors.purpleAccent, StudMediaHomePage(userEmail: widget.userEmail)),
                     buildFeatureCard(context, "Posts", Icons.plus_one_rounded,
@@ -180,10 +317,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         Colors.pinkAccent, DayUpdatesPage()),
                     buildFeatureCard(context, "More", Icons.more_horiz,
                         Colors.grey, MorePage(studentId: widget.userEmail)),
-                  ],
+                  ]),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1,
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -3,204 +3,228 @@ import 'results_page.dart';
 
 class Party {
   String name;
-  int votes;
-  String creatorId; // president
+  String creatorId;
   String? vicePresidentId;
   String? secretaryId;
   String? jointSecretaryId;
+  int presidentVotes = 0;
+  int viceVotes = 0;
+  int secretaryVotes = 0;
+  int jointVotes = 0;
 
-  Party({
-    required this.name,
-    required this.creatorId,
-    this.votes = 0,
-    this.vicePresidentId,
-    this.secretaryId,
-    this.jointSecretaryId,
-  });
+  Party({required this.name, required this.creatorId});
 }
 
 class ElectionPage extends StatefulWidget {
-  final String studentId; // comes from login page
-
+  final String studentId;
   const ElectionPage({super.key, required this.studentId});
 
   @override
-  _ElectionPageState createState() => _ElectionPageState();
+  State<ElectionPage> createState() => _ElectionPageState();
 }
 
 class _ElectionPageState extends State<ElectionPage> {
-  final List<Party> _parties = [];
-  final Map<String, bool> _studentVotes = {}; // studentId → hasVoted
+  static final List<Party> _parties = [];
   final TextEditingController _partyController = TextEditingController();
+  final Map<String, bool> _studentVotedPresident = {};
+  final Map<String, bool> _studentVotedRoles = {};
 
-  // Dummy function: in real app this would come from DB
-  bool _isFinalYear(String id) {
-    return id.startsWith("4"); // e.g., roll starting with 4 → final year
+  void _showMessage(String msg) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
   }
 
   void _createParty() {
     String name = _partyController.text.trim();
-
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Enter a Party name")),
-      );
+      _showMessage("Enter a party name");
       return;
     }
-
-    if (!_isFinalYear(widget.studentId)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Only Final Year students can create a party")),
-      );
-      return;
-    }
-
     if (_parties.any((p) => p.creatorId == widget.studentId)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("You can only create one party")),
-      );
+      _showMessage("You can only create one party");
       return;
     }
-
     setState(() {
       _parties.add(Party(name: name, creatorId: widget.studentId));
       _partyController.clear();
     });
+    _showMessage("Party '$name' created successfully!");
   }
 
-  void _vote(Party party) {
-    if (_studentVotes[widget.studentId] == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("You have already voted")),
-      );
+  void _votePresident(Party party) {
+    if (_studentVotedPresident[widget.studentId] == true) {
+      _showMessage("You already voted for President");
       return;
     }
-
     setState(() {
-      party.votes += 1;
-      _studentVotes[widget.studentId] = true;
+      party.presidentVotes++;
+      _studentVotedPresident[widget.studentId] = true;
     });
+    _showMessage("Vote for President added!");
   }
 
-  void _assignRole(Party party, String role) {
-    if (widget.studentId == party.creatorId) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("You are already President")),
-      );
+  void _voteRole(Party party, String role) {
+    if (_studentVotedRoles[widget.studentId] == true) {
+      _showMessage("You already voted for a role");
       return;
     }
-
     setState(() {
       switch (role) {
         case "Vice President":
-          party.vicePresidentId = widget.studentId;
+          party.viceVotes++;
           break;
         case "Secretary":
-          party.secretaryId = widget.studentId;
+          party.secretaryVotes++;
           break;
         case "Joint Secretary":
-          party.jointSecretaryId = widget.studentId;
+          party.jointVotes++;
+          break;
+      }
+      _studentVotedRoles[widget.studentId] = true;
+    });
+    _showMessage("Vote for $role added!");
+  }
+
+  void _joinRole(Party party, String role) {
+    if (widget.studentId == party.creatorId) {
+      _showMessage("You are already President");
+      return;
+    }
+    setState(() {
+      switch (role) {
+        case "Vice President":
+          party.vicePresidentId ??= widget.studentId;
+          break;
+        case "Secretary":
+          party.secretaryId ??= widget.studentId;
+          break;
+        case "Joint Secretary":
+          party.jointSecretaryId ??= widget.studentId;
           break;
       }
     });
+    _showMessage("You joined '${party.name}' as $role");
+  }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("You joined ${party.name} as $role")),
-    );
+  void _deleteParty(Party party) {
+    if (party.creatorId != widget.studentId) {
+      _showMessage("Only the creator can delete this party");
+      return;
+    }
+    setState(() {
+      _parties.remove(party);
+    });
+    _showMessage("Party deleted successfully");
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Election Portal")),
+      appBar: AppBar(
+        title: const Text("Election Portal"),
+        backgroundColor: Colors.deepPurple,
+      ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Logged in as: ${widget.studentId}",
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
                 TextField(
                   controller: _partyController,
                   decoration: const InputDecoration(
-                    labelText: "Party Name",
-                    border: OutlineInputBorder(),
-                  ),
+                      labelText: "Party Name", border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: _createParty,
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple),
                   child: const Text("Create Party"),
                 ),
               ],
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: _parties.length,
-              itemBuilder: (context, index) {
-                final party = _parties[index];
-                return Card(
-                  margin: const EdgeInsets.all(8),
-                  child: ExpansionTile(
-                    title: Text(party.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text("Votes: ${party.votes}"),
-                    children: [
-                      ListTile(
-                        title: Text("President: ${party.creatorId}"),
-                      ),
-                      ListTile(
-                        title: Text("Vice President: ${party.vicePresidentId ?? 'Not Assigned'}"),
-                        trailing: ElevatedButton(
-                          onPressed: () => _assignRole(party, "Vice President"),
-                          child: const Text("Join"),
+            child: _parties.isEmpty
+                ? const Center(child: Text("No parties yet"))
+                : ListView.builder(
+                itemCount: _parties.length,
+                itemBuilder: (context, index) {
+                  final party = _parties[index];
+                  return Card(
+                    margin: const EdgeInsets.all(8),
+                    child: ExpansionTile(
+                      title: Text(party.name,
+                          style:
+                          const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle:
+                      Text("President Votes: ${party.presidentVotes}"),
+                      children: [
+                        ListTile(
+                            title: Text("President: ${party.creatorId}")),
+                        _roleTile(party, "Vice President",
+                            party.vicePresidentId),
+                        _roleTile(party, "Secretary", party.secretaryId),
+                        _roleTile(party, "Joint Secretary",
+                            party.jointSecretaryId),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            ElevatedButton(
+                                onPressed: () => _votePresident(party),
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.deepPurple),
+                                child: const Text("Vote President")),
+                            ElevatedButton(
+                                onPressed: () =>
+                                    _voteRole(party, "Vice President"),
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue),
+                                child: const Text("Vote VP")),
+                            if (party.creatorId == widget.studentId)
+                              ElevatedButton.icon(
+                                  onPressed: () => _deleteParty(party),
+                                  icon: const Icon(Icons.delete),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red),
+                                  label: const Text("Delete")),
+                          ],
                         ),
-                      ),
-                      ListTile(
-                        title: Text("Secretary: ${party.secretaryId ?? 'Not Assigned'}"),
-                        trailing: ElevatedButton(
-                          onPressed: () => _assignRole(party, "Secretary"),
-                          child: const Text("Join"),
-                        ),
-                      ),
-                      ListTile(
-                        title: Text("Joint Secretary: ${party.jointSecretaryId ?? 'Not Assigned'}"),
-                        trailing: ElevatedButton(
-                          onPressed: () => _assignRole(party, "Joint Secretary"),
-                          child: const Text("Join"),
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.how_to_vote, color: Colors.white),
-                        label: const Text("Vote"),
-                        onPressed: () => _vote(party),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                      ],
+                    ),
+                  );
+                }),
           ),
           if (_parties.isNotEmpty)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ResultsPage(parties: _parties),
-                  ),
-                );
-              },
-              child: const Text("View Results"),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => ResultsPage(parties: _parties)));
+                },
+                child: const Text("View Results"),
+              ),
             ),
-          const SizedBox(height: 20),
         ],
       ),
+    );
+  }
+
+  Widget _roleTile(Party party, String role, String? assignedId) {
+    return ListTile(
+      title: Text("$role: ${assignedId ?? "Not Assigned"}"),
+      trailing: assignedId == null
+          ? ElevatedButton(
+        onPressed: () => _joinRole(party, role),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
+        child: const Text("Join"),
+      )
+          : null,
     );
   }
 }
