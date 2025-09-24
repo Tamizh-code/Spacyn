@@ -21,9 +21,12 @@ class AppTheme {
       ),
     ),
     cardTheme: CardThemeData(
+=
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      margin: const EdgeInsets.all(8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
+      margin: EdgeInsets.all(8),
     ),
   );
 
@@ -46,10 +49,12 @@ class AppTheme {
         color: Colors.white70,
       ),
     ),
+
     cardTheme: CardThemeData(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.all(8),
+
     ),
   );
 }
