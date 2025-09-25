@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'signup_page.dart';
-import 'reset_password_page.dart'; // ✅ Added import
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class ResetPasswordPage extends StatefulWidget {
+  const ResetPasswordPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
 }
 
-class _LoginPageState extends State<LoginPage>
+class _ResetPasswordPageState extends State<ResetPasswordPage>
     with SingleTickerProviderStateMixin {
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
 
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -22,14 +19,14 @@ class _LoginPageState extends State<LoginPage>
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     );
     _scaleAnimation =
         CurvedAnimation(parent: _controller, curve: Curves.easeOutBack);
-    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _fadeAnimation =
+        CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
   }
 
@@ -37,8 +34,31 @@ class _LoginPageState extends State<LoginPage>
   void dispose() {
     _controller.dispose();
     emailController.dispose();
-    passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> resetPassword() async {
+    String email = emailController.text.trim();
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter your email")),
+      );
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Password reset link sent! Check your email.")),
+      );
+      Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? "Something went wrong")),
+      );
+    }
   }
 
   @override
@@ -76,38 +96,26 @@ class _LoginPageState extends State<LoginPage>
                           opacity: _fadeAnimation,
                           child: Column(
                             children: [
-                              Container(
-                                height: 130,
-                                width: 130,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.8),
-                                    width: 3,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.3),
-                                      blurRadius: 20,
-                                      spreadRadius: 5,
-                                    ),
-                                  ],
-                                  image: const DecorationImage(
-                                    image: AssetImage(
-                                        "assets/images/spacyn_logo.png"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
+                              const Icon(
+                                Icons.lock_reset,
+                                size: 100,
+                                color: Colors.white,
                               ),
                               const SizedBox(height: 15),
                               const Text(
-                                "Sραcуи",
+                                "Reset Password",
                                 style: TextStyle(
-                                  fontSize: 36,
+                                  fontSize: 32,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
-                                  letterSpacing: 1.5,
                                 ),
+                              ),
+                              const SizedBox(height: 10),
+                              const Text(
+                                "Enter your email to receive a reset link",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white70),
                               ),
                             ],
                           ),
@@ -115,80 +123,18 @@ class _LoginPageState extends State<LoginPage>
                       ),
                     ),
                     const SizedBox(height: 40),
-                    const Text(
-                      "Login to your account",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18, color: Colors.white70),
-                    ),
-                    const SizedBox(height: 30),
 
-                    // Email
+                    // Email field
                     buildTextField(
                       controller: emailController,
-                      hint: "Username or Email",
-                      icon: Icons.person_outline,
+                      hint: "Email",
+                      icon: Icons.email_outlined,
                     ),
                     const SizedBox(height: 20),
 
-                    // Password
-                    buildTextField(
-                      controller: passwordController,
-                      hint: "Password",
-                      icon: Icons.lock_outline,
-                      obscure: true,
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Forgot Password
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ResetPasswordPage(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          "Forgot Password?",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Login Button
+                    // Reset button
                     ElevatedButton(
-                      onPressed: () async {
-                        String email = emailController.text.trim();
-                        String password = passwordController.text.trim();
-
-                        if (email.isNotEmpty && password.isNotEmpty) {
-                          try {
-                            await FirebaseAuth.instance
-                                .signInWithEmailAndPassword(
-                              email: email,
-                              password: password,
-                            );
-
-                            // ✅ Navigation handled by Firebase Auth listener in main.dart
-                          } on FirebaseAuthException catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content:
-                                  Text(e.message ?? "Login failed")),
-                            );
-                          }
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    "Please enter username and password")),
-                          );
-                        }
-                      },
+                      onPressed: resetPassword,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepPurple.shade400,
                         foregroundColor: Colors.white,
@@ -199,31 +145,27 @@ class _LoginPageState extends State<LoginPage>
                         elevation: 5,
                       ),
                       child: const Text(
-                        "Login",
+                        "Send Reset Link",
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(height: 20),
 
-                    // Signup redirect
+                    // Back to login
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          "Don't have an account? ",
+                          "Remembered your password? ",
                           style: TextStyle(color: Colors.white70),
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SignupPage()),
-                            );
+                            Navigator.pop(context); // Go back to LoginPage
                           },
                           child: const Text(
-                            "Sign Up",
+                            "Back to Login",
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -232,6 +174,7 @@ class _LoginPageState extends State<LoginPage>
                         ),
                       ],
                     ),
+
                     const Spacer(),
                   ],
                 ),
@@ -243,12 +186,11 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // Custom Text Field Builder
+  // Custom text field to match login page
   Widget buildTextField({
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-    bool obscure = false,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -264,8 +206,8 @@ class _LoginPageState extends State<LoginPage>
       ),
       child: TextField(
         controller: controller,
-        obscureText: obscure,
         style: const TextStyle(color: Colors.white),
+        keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hint,
