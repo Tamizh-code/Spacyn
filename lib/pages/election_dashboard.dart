@@ -10,50 +10,87 @@ class ElectionDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Election Dashboard")),
+      backgroundColor: Colors.deepPurple.shade50,
+      appBar: AppBar(
+        title: const Text("Election Dashboard"),
+        backgroundColor: Colors.deepPurple,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            Text("Welcome, $studentId 👋",
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(
+              "Welcome, $studentId 👋",
+              style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple),
+            ),
             const SizedBox(height: 30),
-            _buildButton(context, "Create / Join Party", Icons.group_add, () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => ElectionPage(studentId: studentId)),
-              );
-            }),
-            _buildButton(context, "View Results", Icons.bar_chart, () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => ResultsPage(parties: demoParties)),
-              );
-            }),
+            _buildCardButton(
+              context,
+              "Create / Join Party",
+              Icons.group_add,
+              Colors.deepPurple,
+                  () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => ElectionPage(studentId: studentId)),
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+            _buildCardButton(
+              context,
+              "View Results",
+              Icons.bar_chart,
+              Colors.green,
+                  () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ResultsPage()),
+                );
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildButton(BuildContext context, String text, IconData icon, VoidCallback onTap) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: ElevatedButton.icon(
-        onPressed: onTap,
-        icon: Icon(icon),
-        label: Text(text),
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 50),
-          textStyle: const TextStyle(fontSize: 18),
+  Widget _buildCardButton(BuildContext context, String text, IconData icon,
+      Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Card(
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          width: double.infinity,
+          height: 110,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: color.withOpacity(0.1),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 40, color: color),
+                const SizedBox(height: 10),
+                Text(
+                  text,
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: color),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 }
-
-// 🔹 Dummy parties for demo
-final List<Party> demoParties = [
-  Party(name: "Future Leaders", creatorId: "finalYear123", votes: 120),
-  Party(name: "Unity Squad", creatorId: "finalYear456", votes: 95),
-];

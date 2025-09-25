@@ -2,6 +2,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+// -------------------- Theme Colors --------------------
+final Color primaryColor = Colors.deepPurple;
+final Color accentColor = Colors.deepPurpleAccent;
+final Color textDark = Colors.black87;
+final Color textLight = Colors.white;
+
 // -------------------- Student Profile Model --------------------
 class StudentProfile {
   String email;
@@ -44,8 +50,8 @@ class StudMediaHomePage extends StatefulWidget {
 class _StudMediaHomePageState extends State<StudMediaHomePage> {
   List<StudentProfile> profiles = [
     StudentProfile(
-      email: "alice@example.com",
-      name: "Alice Johnson",
+      email: "harsath@example.com",
+      name: "Harsath Mohamed",
       skills: ["Flutter", "Python", "UI/UX Design"],
       excellence: "Won 1st prize in Hackathon 2025",
       bio: "Passionate Flutter developer",
@@ -55,8 +61,8 @@ class _StudMediaHomePageState extends State<StudMediaHomePage> {
       linkedin: "https://linkedin.com/in/alice",
     ),
     StudentProfile(
-      email: "bob@example.com",
-      name: "Bob Smith",
+      email: "mani@example.com",
+      name: "Mani Conqueror",
       skills: ["Java", "C++", "Machine Learning"],
       excellence: "Published research in AI Journal",
       bio: "ML enthusiast and researcher",
@@ -126,7 +132,7 @@ class _StudMediaHomePageState extends State<StudMediaHomePage> {
       backgroundColor: Colors.deepPurple.shade100,
       appBar: AppBar(
         title: const Text("Stud Pedia"),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: primaryColor,
         elevation: 4,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(bottom: Radius.circular(20))),
@@ -139,7 +145,7 @@ class _StudMediaHomePageState extends State<StudMediaHomePage> {
             TextField(
               decoration: InputDecoration(
                 hintText: "Search by skills...",
-                prefixIcon: const Icon(Icons.search, color: Colors.deepPurple),
+                prefixIcon: Icon(Icons.search, color: primaryColor),
                 filled: true,
                 fillColor: Colors.deepPurple.shade50,
                 border: OutlineInputBorder(
@@ -161,8 +167,8 @@ class _StudMediaHomePageState extends State<StudMediaHomePage> {
                 icon: const Icon(Icons.add),
                 label: const Text("Create Your Profile"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
+                  backgroundColor: primaryColor,
+                  foregroundColor: textLight,
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
@@ -246,7 +252,7 @@ class StudentProfileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 6,
-      shadowColor: Colors.deepPurple.shade200,
+      shadowColor: primaryColor.withOpacity(0.3),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       margin: const EdgeInsets.symmetric(vertical: 8),
       color: Colors.deepPurple.shade50,
@@ -260,12 +266,11 @@ class StudentProfileCard extends StatelessWidget {
                 backgroundImage: profile.profileImagePath != null
                     ? FileImage(File(profile.profileImagePath!))
                     : null,
-                backgroundColor: Colors.deepPurple.shade300,
+                backgroundColor: primaryColor.withOpacity(0.8),
                 child: profile.profileImagePath == null
                     ? Text(
                   profile.name.isNotEmpty ? profile.name[0] : "?",
-                  style:
-                  const TextStyle(fontSize: 24, color: Colors.white),
+                  style: TextStyle(fontSize: 24, color: textLight),
                 )
                     : null,
               ),
@@ -273,10 +278,10 @@ class StudentProfileCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   profile.name.isNotEmpty ? profile.name : "No Name",
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple),
+                      color: primaryColor),
                 ),
               ),
             ],
@@ -284,15 +289,15 @@ class StudentProfileCard extends StatelessWidget {
           const SizedBox(height: 12),
           if (profile.bio.isNotEmpty)
             Text(profile.bio,
-                style: const TextStyle(fontSize: 14, color: Colors.black54)),
+                style: TextStyle(fontSize: 14, color: textDark)),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             children: profile.skills
                 .map((skill) => Chip(
               label: Text(skill),
-              backgroundColor: Colors.deepPurple.shade100,
-              labelStyle: const TextStyle(color: Colors.deepPurple),
+              backgroundColor: accentColor.withOpacity(0.2),
+              labelStyle: TextStyle(color: primaryColor),
             ))
                 .toList(),
           ),
@@ -306,10 +311,8 @@ class StudentProfileCard extends StatelessWidget {
                   profile.excellence.isNotEmpty
                       ? profile.excellence
                       : "No achievements",
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.deepPurple),
+                  style: TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w500, color: primaryColor),
                 ),
               ),
             ],
@@ -321,8 +324,8 @@ class StudentProfileCard extends StatelessWidget {
               icon: const Icon(Icons.how_to_reg),
               label: const Text("View Profile"),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
+                  backgroundColor: primaryColor,
+                  foregroundColor: textLight,
                   minimumSize: const Size(double.infinity, 40),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12))),
@@ -331,7 +334,7 @@ class StudentProfileCard extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: Colors.deepPurple),
+                icon: Icon(Icons.more_vert, color: primaryColor),
                 onSelected: (value) {
                   switch (value) {
                     case 'Edit':
@@ -411,7 +414,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       backgroundColor: Colors.deepPurple.shade100,
       appBar: AppBar(
         title: const Text("Edit Profile"),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: primaryColor,
         elevation: 4,
       ),
       body: SingleChildScrollView(
@@ -423,9 +426,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               radius: 50,
               backgroundImage:
               profileImagePath != null ? FileImage(File(profileImagePath!)) : null,
-              backgroundColor: Colors.deepPurple.shade200,
+              backgroundColor: primaryColor.withOpacity(0.7),
               child: profileImagePath == null
-                  ? const Icon(Icons.camera_alt, color: Colors.white, size: 32)
+                  ? Icon(Icons.camera_alt, color: textLight, size: 32)
                   : null,
             ),
           ),
@@ -453,8 +456,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               final updatedProfile = StudentProfile(
                 email: widget.profile.email,
                 name: nameController.text,
-                skills:
-                skillsController.text.split(",").map((s) => s.trim()).toList(),
+                skills: skillsController.text.split(",").map((s) => s.trim()).toList(),
                 excellence: excellenceController.text,
                 bio: bioController.text,
                 department: departmentController.text,
@@ -468,11 +470,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
+                backgroundColor: primaryColor,
+                foregroundColor: textLight,
                 minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12))),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
             child: const Text("Save"),
           ),
         ]),
@@ -507,211 +508,115 @@ class ViewStudentProfilePage extends StatelessWidget {
       backgroundColor: Colors.deepPurple.shade100,
       appBar: AppBar(
         title: Text(profile.name),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: primaryColor,
         elevation: 4,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: profile.profileImagePath != null
-                    ? FileImage(File(profile.profileImagePath!))
-                    : null,
-                backgroundColor: Colors.deepPurple.shade300,
-                child: profile.profileImagePath == null
-                    ? Text(
-                  profile.name.isNotEmpty ? profile.name[0] : "?",
-                  style:
-                  const TextStyle(fontSize: 28, color: Colors.white),
-                )
-                    : null,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(profile.name,
-                        style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple)),
-                    if (profile.department.isNotEmpty || profile.year.isNotEmpty)
-                      Text("${profile.department} • ${profile.year}",
-                          style: const TextStyle(
-                              fontSize: 16, color: Colors.black54)),
-                  ],
-                ),
-              ),
-            ],
+        child: Column(children: [
+          CircleAvatar(
+            radius: 50,
+            backgroundImage:
+            profile.profileImagePath != null ? FileImage(File(profile.profileImagePath!)) : null,
+            backgroundColor: primaryColor.withOpacity(0.7),
+            child: profile.profileImagePath == null
+                ? Text(profile.name.isNotEmpty ? profile.name[0] : "?", style: TextStyle(fontSize: 28, color: textLight))
+                : null,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+          Text(profile.name,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: primaryColor)),
+          const SizedBox(height: 6),
+          Text("${profile.department} • ${profile.year}",
+              style: TextStyle(fontSize: 16, color: textDark)),
+          const SizedBox(height: 12),
           if (profile.bio.isNotEmpty)
-            Text(profile.bio,
-                style: const TextStyle(fontSize: 16, color: Colors.black87)),
-          const SizedBox(height: 16),
+            Text(profile.bio, style: TextStyle(fontSize: 16, color: textDark)),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             children: profile.skills
                 .map((skill) => Chip(
               label: Text(skill),
-              backgroundColor: Colors.deepPurple.shade100,
-              labelStyle: const TextStyle(color: Colors.deepPurple),
+              backgroundColor: accentColor.withOpacity(0.2),
+              labelStyle: TextStyle(color: primaryColor),
             ))
                 .toList(),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const Icon(Icons.star, color: Colors.amber),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  profile.excellence,
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.deepPurple),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          if (profile.github.isNotEmpty)
-            _buildLinkTile(Icons.code, "GitHub", profile.github),
-          if (profile.linkedin.isNotEmpty)
-            _buildLinkTile(Icons.business, "LinkedIn", profile.linkedin),
-          if (profile.portfolio.isNotEmpty)
-            _buildLinkTile(Icons.web, "Portfolio", profile.portfolio),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              if (currentUser == null) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("You need a profile to send messages!")));
-                return;
-              }
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      ChatPage(currentUser: currentUser!, otherUser: profile),
-                ),
-              );
-            },
-            icon: const Icon(Icons.message),
-            label: const Text("Message"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
-          )
+          const SizedBox(height: 12),
+          Text(profile.excellence,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: primaryColor)),
+          const SizedBox(height: 20),
+          ChatPage(profile: profile, currentUser: currentUser),
         ]),
       ),
-    );
-  }
-
-  Widget _buildLinkTile(IconData icon, String title, String url) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.deepPurple),
-      title: Text(title),
-      subtitle: Text(url, style: const TextStyle(color: Colors.blue)),
     );
   }
 }
 
 // -------------------- Chat Page --------------------
 class ChatPage extends StatefulWidget {
-  final StudentProfile currentUser;
-  final StudentProfile otherUser;
+  final StudentProfile profile;
+  final StudentProfile? currentUser;
 
-  const ChatPage({super.key, required this.currentUser, required this.otherUser});
+  const ChatPage({super.key, required this.profile, this.currentUser});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final List<String> messages = [];
+  List<String> messages = [];
   final TextEditingController messageController = TextEditingController();
 
   void _sendMessage() {
-    if (messageController.text.trim().isEmpty) return;
+    if (messageController.text.isEmpty) return;
     setState(() {
-      messages.add("${widget.currentUser.name}: ${messageController.text}");
+      messages.add(messageController.text);
+      messageController.clear();
     });
-    messageController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.deepPurple.shade100,
-      appBar: AppBar(
-        title: Text("Chat with ${widget.otherUser.name}"),
-        backgroundColor: Colors.deepPurple,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final isMe = messages[index].startsWith(widget.currentUser.name);
-                return Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 4, horizontal: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isMe
-                          ? Colors.deepPurple.shade300
-                          : Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      messages[index],
-                      style: TextStyle(
-                        color: isMe ? Colors.white : Colors.black,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+    return Column(
+      children: [
+        const Align(alignment: Alignment.centerLeft, child: Text("Chat", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+        const SizedBox(height: 10),
+        Container(
+          height: 200,
+          decoration: BoxDecoration(
+              color: Colors.deepPurple.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: primaryColor.withOpacity(0.5))),
+          child: ListView.builder(
+            itemCount: messages.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(messages[index], style: TextStyle(color: textDark)),
+              );
+            },
           ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: messageController,
-                    decoration: InputDecoration(
-                      hintText: "Type a message...",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: messageController,
+                decoration: InputDecoration(
+                  hintText: "Type a message...",
+                  filled: true,
+                  fillColor: Colors.deepPurple.shade50,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Colors.deepPurple),
-                  onPressed: _sendMessage,
-                )
-              ],
+              ),
             ),
-          )
-        ],
-      ),
+            IconButton(icon: Icon(Icons.send, color: primaryColor), onPressed: _sendMessage),
+          ],
+        )
+      ],
     );
   }
 }
