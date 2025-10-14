@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/group_model.dart';
 import 'group_chat_page.dart';
 
@@ -22,6 +25,7 @@ class GroupInfoPage extends StatefulWidget {
 
 class _GroupInfoPageState extends State<GroupInfoPage> {
   late Group group;
+  File? imageFile;
 
   bool get isAdmin => widget.currentUser == group.admin;
 
@@ -29,6 +33,18 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   void initState() {
     super.initState();
     group = widget.group;
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() {
+        imageFile = File(picked.path);
+        group = group.copyWith(imageUrl: picked.path);
+      });
+      widget.onUpdate?.call(group);
+    }
   }
 
   void _editGroup() {
@@ -42,17 +58,28 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Group Name')),
-            TextField(controller: descController, decoration: const InputDecoration(labelText: 'Description')),
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Group Name'),
+            ),
+            TextField(
+              controller: descController,
+              decoration: const InputDecoration(labelText: 'Description'),
+            ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           FilledButton(
             onPressed: () {
               setState(() {
-                group.name = nameController.text;
-                group.description = descController.text;
+                group = group.copyWith(
+                  name: nameController.text,
+                  description: descController.text,
+                );
               });
               widget.onUpdate?.call(group);
               Navigator.pop(context);
@@ -71,7 +98,10 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         title: const Text('Delete Group?'),
         content: const Text('Are you sure you want to delete this group?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           FilledButton(
             onPressed: () {
               widget.onDelete?.call();
@@ -92,14 +122,24 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Add Member'),
-        content: TextField(controller: memberController, decoration: const InputDecoration(hintText: 'Member Name')),
+        content: TextField(
+          controller: memberController,
+          decoration: const InputDecoration(hintText: 'Member Name'),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           FilledButton(
             onPressed: () {
               final name = memberController.text.trim();
               if (name.isNotEmpty && !group.members.contains(name)) {
-                setState(() => group.members.add(name));
+                setState(() {
+                  group = group.copyWith(
+                    members: [...group.members, name],
+                  );
+                });
                 widget.onUpdate?.call(group);
               }
               Navigator.pop(context);
@@ -125,21 +165,44 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundImage: group.imageUrl != null ? NetworkImage(group.imageUrl!) : null,
-            backgroundColor: group.color,
-            child: group.imageUrl == null ? Text(group.name[0], style: const TextStyle(fontSize: 40, color: Colors.white)) : null,
+          GestureDetector(
+            onTap: isAdmin ? _pickImage : null,
+            child: CircleAvatar(
+              radius: 50,
+              backgroundImage: group.imageUrl != null
+                  ? File(group.imageUrl!).existsSync()
+                  ? FileImage(File(group.imageUrl!))
+                  : NetworkImage(group.imageUrl!) as ImageProvider
+                  : null,
+              backgroundColor: group.color,
+              child: group.imageUrl == null
+                  ? Text(
+                group.name[0],
+                style: const TextStyle(fontSize: 40, color: Colors.white),
+              )
+                  : null,
+            ),
           ),
           const SizedBox(height: 12),
-          Center(child: Text(group.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
+          Center(
+            child: Text(
+              group.name,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+          ),
           const SizedBox(height: 6),
-          Center(child: Text(group.description, style: const TextStyle(fontSize: 16, color: Colors.grey))),
+          Center(
+            child: Text(
+              group.description,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          ),
           const Divider(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Members', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              const Text('Members',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
               if (isAdmin)
                 IconButton(
                   icon: const Icon(Icons.person_add),
@@ -160,7 +223,10 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => GroupChatPage(group: group, currentUser: widget.currentUser),
+                    builder: (_) => GroupChatPage(
+                      group: group,
+                      currentUser: widget.currentUser,
+                    ),
                   ),
                 );
               },
