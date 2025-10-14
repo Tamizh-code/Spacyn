@@ -21,7 +21,6 @@ class AppTheme {
       ),
     ),
     cardTheme: CardThemeData(
-=
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(16)),

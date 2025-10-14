@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignupPage extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
@@ -16,7 +17,7 @@ class SignupPage extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF6A0DAD), Color(0xFF1E90FF)], // violet → blue
+            colors: [Color(0xFF6A0DAD), Color(0xFF1E90FF)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -28,8 +29,6 @@ class SignupPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 30),
-
-                // Title
                 const Text(
                   "Create Your Account",
                   style: TextStyle(
@@ -42,54 +41,50 @@ class SignupPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
 
-                // Full Name
                 buildTextField("Full Name", Icons.person, nameController),
                 const SizedBox(height: 15),
 
-                // Register Number
                 buildTextField("Register Number", Icons.badge, regNoController),
                 const SizedBox(height: 15),
 
-                // Mobile
                 buildTextField("Mobile Number", Icons.phone, mobileController,
                     inputType: TextInputType.phone),
                 const SizedBox(height: 15),
 
-                // Department
                 buildTextField("Department", Icons.school, deptController),
                 const SizedBox(height: 15),
 
-                // Email
                 buildTextField("Email", Icons.email, emailController,
                     inputType: TextInputType.emailAddress),
                 const SizedBox(height: 15),
 
-                // Password
                 buildTextField("Password", Icons.lock, passwordController,
                     isPassword: true),
                 const SizedBox(height: 15),
 
-                // Confirm Password
-                buildTextField(
-                    "Confirm Password", Icons.lock, confirmController,
+                buildTextField("Confirm Password", Icons.lock, confirmController,
                     isPassword: true),
                 const SizedBox(height: 30),
 
-                // Sign Up Button
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (passwordController.text == confirmController.text) {
-                      String name = nameController.text;
-                      String regNo = regNoController.text;
+                      try {
+                        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                          email: emailController.text.trim(),
+                          password: passwordController.text.trim(),
+                        );
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Account Created for $name ($regNo)"),
-                          backgroundColor: Colors.deepPurple.shade300,
-                        ),
-                      );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Account Created Successfully")),
+                        );
 
-                      Navigator.pop(context); // back to login
+                        Navigator.pop(context);
+                      } on FirebaseAuthException catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(e.message ?? "Sign up failed")),
+                        );
+                      }
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Passwords do not match")),
@@ -116,7 +111,6 @@ class SignupPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // Already have account
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -124,7 +118,7 @@ class SignupPage extends StatelessWidget {
                         style: TextStyle(color: Colors.white70)),
                     TextButton(
                       onPressed: () {
-                        Navigator.pop(context); // back to login
+                        Navigator.pop(context);
                       },
                       child: const Text(
                         "Login",
@@ -145,10 +139,8 @@ class SignupPage extends StatelessWidget {
     );
   }
 
-  Widget buildTextField(String label, IconData icon,
-      TextEditingController controller,
-      {bool isPassword = false,
-        TextInputType inputType = TextInputType.text}) {
+  Widget buildTextField(String label, IconData icon, TextEditingController controller,
+      {bool isPassword = false, TextInputType inputType = TextInputType.text}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.15),

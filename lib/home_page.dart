@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // ✅ Firebase logout support
+
 import 'package:project/pages/post_page.dart';
 import 'pages/stud_media_page.dart';
 import 'pages/other_functions_page.dart';
@@ -9,9 +11,9 @@ import 'pages/profile_page.dart';
 import 'pages/group_page.dart';
 import 'pages/alerts_page.dart';
 import 'pages/events_page.dart';
-import 'login_page.dart';
 import 'pages/community_page.dart';
 import 'pages/properties_page.dart';
+import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
   final String userEmail;
@@ -72,7 +74,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Top Bar: Logo + Notifications + Settings
+                      // Top Bar
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -86,9 +88,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                               Text(
                                 "Sραcуи",
                                 style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ],
                           ),
@@ -105,7 +108,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                               ),
                               PopupMenuButton<String>(
                                 icon: const Icon(Icons.settings, color: Colors.white),
-                                onSelected: (value) {
+                                onSelected: (value) async {
                                   switch (value) {
                                     case 'Logout':
                                       showDialog(
@@ -119,11 +122,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                               child: const Text('Cancel'),
                                             ),
                                             TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(ctx);
+                                              onPressed: () async {
+                                                Navigator.pop(ctx); // Close dialog
+                                                await FirebaseAuth.instance.signOut(); // ✅ Sign out
                                                 Navigator.pushAndRemoveUntil(
                                                   context,
-                                                  MaterialPageRoute(builder: (_) => LoginPage()),
+                                                  MaterialPageRoute(builder: (_) => const LoginPage()),
                                                       (route) => false,
                                                 );
                                               },
@@ -143,8 +147,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                               'Your privacy is important to us. [We value your privacy and are committed to protecting your personal information. This app collects only essential data to provide a better user experience, such as email, name, and app usage preferences. We do not share your information with third parties without your consent. All data is securely stored and used solely for app functionality, improvements, and communication. By using this app, you agree to our privacy practices.]'),
                                           actions: [
                                             TextButton(
-                                                onPressed: () => Navigator.pop(ctx),
-                                                child: const Text('Close'))
+                                              onPressed: () => Navigator.pop(ctx),
+                                              child: const Text('Close'),
+                                            )
                                           ],
                                         ),
                                       );
@@ -162,16 +167,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                           ),
                                           actions: [
                                             TextButton(
-                                                onPressed: () => Navigator.pop(ctx),
-                                                child: const Text('Cancel')),
+                                              onPressed: () => Navigator.pop(ctx),
+                                              child: const Text('Cancel'),
+                                            ),
                                             TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(ctx);
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(content: Text('Feedback submitted!')),
-                                                  );
-                                                },
-                                                child: const Text('Submit')),
+                                              onPressed: () {
+                                                Navigator.pop(ctx);
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(content: Text('Feedback submitted!')),
+                                                );
+                                              },
+                                              child: const Text('Submit'),
+                                            ),
                                           ],
                                         ),
                                       );
@@ -183,10 +190,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                         applicationName: 'Sραcуи',
                                         applicationVersion: '1.0.0',
                                         applicationIcon: const CircleAvatar(
-                                          backgroundImage: AssetImage("assets/images/spacyn_logo.png"),
+                                          backgroundImage:
+                                          AssetImage("assets/images/spacyn_logo.png"),
                                         ),
-                                        children: [
-                                          const Text('This is a sample Flutter app for demonstration.'),
+                                        children: const [
+                                          Text('This is a sample Flutter app for demonstration.'),
                                         ],
                                       );
                                       break;
@@ -205,7 +213,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ),
                       const SizedBox(height: 25),
 
-                      // Profile + Hello + Group Button + Search Icon
+                      // Profile & Search Bar Row
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -213,8 +221,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) =>
-                                      ProfilePage(userEmail: widget.userEmail)),
+                                  builder: (_) => ProfilePage(userEmail: widget.userEmail)),
                             ),
                             child: const CircleAvatar(
                               radius: 40,
@@ -229,9 +236,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                 const Text(
                                   "Hello 👋",
                                   style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
                                 ),
                                 Text(
                                   widget.userEmail,
@@ -241,7 +249,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                               ],
                             ),
                           ),
-                          // Group Button
                           InkWell(
                             onTap: () => Navigator.push(
                               context,
@@ -257,7 +264,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             ),
                           ),
                           const SizedBox(width: 12),
-                          // Hidden Search Icon
                           InkWell(
                             onTap: _toggleSearchBar,
                             child: Container(
@@ -273,7 +279,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       ),
                       const SizedBox(height: 15),
 
-                      // Animated Search Field
+                      // Search Bar Animation
                       SizeTransition(
                         sizeFactor: _heightAnimation.drive(Tween(begin: 0.0, end: 1.0)),
                         axisAlignment: -1,
@@ -300,7 +306,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
               ),
 
-              // Grid of features
+              // Feature Grid
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 sliver: SliverGrid(
@@ -331,6 +337,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
       ),
 
+      // Bottom Nav Bar
       bottomNavigationBar: BottomAppBar(
         color: Colors.transparent,
         elevation: 0,
@@ -362,7 +369,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 icon: const Icon(Icons.group, color: Color(0xFFFFA500)),
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => CommunityPage(currentUser: widget.userEmail)),
+                  MaterialPageRoute(
+                      builder: (_) => CommunityPage(currentUser: widget.userEmail)),
                 ),
               ),
             ],
