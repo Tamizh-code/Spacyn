@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class DayUpdatesPage extends StatefulWidget {
   const DayUpdatesPage({super.key});
@@ -129,23 +130,46 @@ class _DayUpdatesPageState extends State<DayUpdatesPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    update['image'] != null
+                    update['image'] != null &&
+                        update['image']
+                            .toString()
+                            .startsWith('http')
                         ? ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        update['image']!,
-                        height: 180,
+                      child: CachedNetworkImage(
+                        imageUrl: update['image']!,
                         width: double.infinity,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
+                        placeholder: (context, url) =>
+                            Container(
+                              height: 200,
+                              alignment: Alignment.center,
+                              child:
+                              const CircularProgressIndicator(),
+                            ),
+                        errorWidget:
+                            (context, url, error) => Container(
+                          height: 200,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius:
+                            BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.broken_image,
+                            size: 50,
+                            color: Colors.grey,
+                          ),
+                        ),
                       ),
                     )
                         : Container(
-                      height: 180,
+                      height: 200,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.grey[300],
-                        borderRadius:
-                        BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.image_not_supported,

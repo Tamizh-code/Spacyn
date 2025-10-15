@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   http: ^1.1.0        # To fetch news from API
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -55,11 +54,9 @@ flutter:
   uses-material-design: true
 
   assets:
-
     - assets/images/spacyn_logo.png
     - assets/images/Sp_logo.png
     - assets/images/post1.jpg
     - assets/images/post2.jpg
     - assets/images/post3.jpg
     - assets/images/profile.jpg
-

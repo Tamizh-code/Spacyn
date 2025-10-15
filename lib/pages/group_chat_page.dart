@@ -5,16 +5,20 @@ class GroupChatPage extends StatefulWidget {
   final Group group;
   final String currentUser;
 
-  const GroupChatPage({super.key, required this.group, required this.currentUser});
+  const GroupChatPage({
+    super.key,
+    required this.group,
+    required this.currentUser,
+  });
 
   @override
   State<GroupChatPage> createState() => _GroupChatPageState();
 }
 
 class _GroupChatPageState extends State<GroupChatPage> {
+  late Group group;
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  late Group group;
 
   @override
   void initState() {
@@ -25,6 +29,7 @@ class _GroupChatPageState extends State<GroupChatPage> {
   void _sendMessage() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
+
     setState(() {
       group.messages.add({
         'sender': widget.currentUser,
@@ -32,7 +37,9 @@ class _GroupChatPageState extends State<GroupChatPage> {
         'time': DateTime.now(),
       });
     });
+
     _controller.clear();
+
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent + 60,
       duration: const Duration(milliseconds: 300),
@@ -47,20 +54,26 @@ class _GroupChatPageState extends State<GroupChatPage> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+        constraints:
+        BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
         decoration: BoxDecoration(
           color: isMe ? group.color : Colors.grey[300],
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
-          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             if (!isMe)
-              Text(msg['sender'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-            Text(msg['text'], style: TextStyle(color: isMe ? Colors.white : Colors.black)),
+              Text(msg['sender'],
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 12)),
+            Text(msg['text'],
+                style: TextStyle(color: isMe ? Colors.white : Colors.black)),
             Text(
               "${msg['time'].hour.toString().padLeft(2, '0')}:${msg['time'].minute.toString().padLeft(2, '0')}",
-              style: TextStyle(fontSize: 10, color: isMe ? Colors.white70 : Colors.black54),
+              style: TextStyle(
+                  fontSize: 10, color: isMe ? Colors.white70 : Colors.black54),
             ),
           ],
         ),
@@ -72,7 +85,21 @@ class _GroupChatPageState extends State<GroupChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(group.name),
+        title: Row(
+          children: [
+            if (group.hasImage)
+              CircleAvatar(
+                backgroundImage: group.imageSourceType == ImageSourceType.network
+                    ? NetworkImage(group.imageUrl!)
+                    : null,
+                child: group.imageSourceType == ImageSourceType.file
+                    ? Image.asset(group.imageUrl!)
+                    : null,
+              ),
+            const SizedBox(width: 8),
+            Text(group.name),
+          ],
+        ),
         backgroundColor: group.color,
       ),
       body: Column(
@@ -93,8 +120,10 @@ class _GroupChatPageState extends State<GroupChatPage> {
                     controller: _controller,
                     decoration: const InputDecoration(
                       hintText: 'Type a message',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20))),
+                      contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     ),
                   ),
                 ),
@@ -114,4 +143,3 @@ class _GroupChatPageState extends State<GroupChatPage> {
     );
   }
 }
-
